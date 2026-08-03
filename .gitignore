@@ -164,6 +164,8 @@ data/raw/**/*.webm
 models/*.task
 # Derived pose outputs; reproducible from notebooks.
 data/derived/pose/*.json
+# Normalized pose outputs; reproducible from notebooks.
+data/derived/normalized/*.json
 
 # Spyder project settings
 .spyderproject
