@@ -157,6 +157,14 @@ ENV/
 env.bak/
 venv.bak/
 
+# Local media and model binaries are documented by metadata but not committed.
+data/raw/**/*.mp4
+data/raw/**/*.mov
+data/raw/**/*.webm
+models/*.task
+# Derived pose outputs; reproducible from notebooks.
+data/derived/pose/*.json
+
 # Spyder project settings
 .spyderproject
 .spyproject
