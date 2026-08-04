@@ -162,14 +162,11 @@ data/raw/**/*.mp4
 data/raw/**/*.mov
 data/raw/**/*.webm
 models/*.task
-# Derived pose outputs; reproducible from notebooks.
 data/derived/pose/*.json
-# Normalized pose outputs; reproducible from notebooks.
 data/derived/normalized/*.json
-# Derived feature outputs; reproducible from notebooks.
 data/derived/features/*.json
-# Comparison outputs; reproducible from notebooks.
 data/derived/comparison/*.json
+data/derived/scores/*.json
 
 # Spyder project settings
 .spyderproject
