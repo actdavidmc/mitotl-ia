@@ -168,6 +168,8 @@ data/derived/pose/*.json
 data/derived/normalized/*.json
 # Derived feature outputs; reproducible from notebooks.
 data/derived/features/*.json
+# Comparison outputs; reproducible from notebooks.
+data/derived/comparison/*.json
 
 # Spyder project settings
 .spyderproject
