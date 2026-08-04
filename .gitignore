@@ -166,6 +166,8 @@ models/*.task
 data/derived/pose/*.json
 # Normalized pose outputs; reproducible from notebooks.
 data/derived/normalized/*.json
+# Derived feature outputs; reproducible from notebooks.
+data/derived/features/*.json
 
 # Spyder project settings
 .spyderproject
