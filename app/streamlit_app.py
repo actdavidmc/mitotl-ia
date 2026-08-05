@@ -967,11 +967,12 @@ def main() -> None:
             width: 100% !important;
             gap: 0 !important;
             position: sticky !important;
-            top: 2.875rem !important;
+            top: 3rem !important;
             z-index: 1000 !important;
-            padding: 0.35rem 0 0.2rem !important;
+            padding: 0.35rem 0 0.5rem !important;
             background: Canvas !important;
             border-bottom: 1px solid rgba(128, 128, 128, 0.35);
+            box-shadow: 0 6px 12px -10px CanvasText;
         }
         [role="tablist"] > div {
             flex: 1 1 0 !important;
