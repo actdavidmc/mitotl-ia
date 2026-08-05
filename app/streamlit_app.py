@@ -970,8 +970,8 @@ def main() -> None:
             top: 2.875rem !important;
             z-index: 1000 !important;
             padding: 0.35rem 0 0.2rem !important;
-            background: var(--background-color) !important;
-            border-bottom: 1px solid var(--secondary-background-color);
+            background: Canvas !important;
+            border-bottom: 1px solid rgba(128, 128, 128, 0.35);
         }
         [role="tablist"] > div {
             flex: 1 1 0 !important;
