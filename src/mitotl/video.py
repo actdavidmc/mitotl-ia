@@ -33,9 +33,9 @@ class VideoPreparationConfig:
     """Configuración de la copia temporal usada para el análisis."""
 
     max_height: int = 480
-    target_fps: float = 30.0
-    long_video_threshold_sec: float = 60.0
-    long_video_fps: float = 15.0
+    target_fps: float = 15.0
+    long_video_threshold_sec: float = 5 * 60
+    long_video_fps: float = 8.0
 
 
 @dataclass(frozen=True, slots=True)
