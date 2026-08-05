@@ -1,0 +1,12 @@
+{
+  "reference_file": "gBR_sBM_c01_d04_mBR0_ch01.mp4",
+  "execution_file": "execution_sBM_personal_01.mov",
+  "reference_frames": 719,
+  "execution_frames": 947,
+  "dtw_pairs": 1098,
+  "score_general_percent": 66.03,
+  "weakest_segment": 2,
+  "segment_count": 6,
+  "body_weight": 0.8,
+  "temporal_weight": 0.2
+}
