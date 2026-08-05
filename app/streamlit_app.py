@@ -668,14 +668,25 @@ def _render_instructions() -> bool:
         "5. Consulta tus resultados y pregunta al agente."
     )
     st.sidebar.info(
+        "Por ahora, Mitotl IA está diseñado para analizar a **una sola persona**. "
+        "Procura que el cuerpo completo sea visible y que la cámara tenga una vista "
+        "frontal o similar a la del video de referencia. El análisis de grupos, "
+        "personas parcialmente visibles u oclusiones importantes todavía no está incluido."
+    )
+    st.sidebar.info(
         "El análisis compara pose, trayectoria y sincronización. "
         "El score orienta la práctica; no representa calidad artística profesional."
     )
-    return st.sidebar.checkbox(
+    visual_review_mode = st.sidebar.checkbox(
         "Revisar interfaz con sesión guardada",
         value=False,
         help="Usa el JSON existente solo para probar el diseño sin volver a procesar los videos.",
     )
+    st.sidebar.caption(
+        "Las referencias del catálogo provienen de [AIST Dance Video Database]"
+        "(https://aistdancedb.ongaaccel.jp/). Uso sujeto a sus términos de uso."
+    )
+    return visual_review_mode
 
 
 def _resolve_session_video_paths(result: dict[str, Any]) -> tuple[Path | None, Path | None]:
@@ -904,10 +915,6 @@ def main() -> None:
     else:
         st.title("Mitotl IA")
     st.write("Compara un video de referencia con tu ejecución y recibe una guía educativa de práctica.")
-    st.caption(
-        "Las referencias del catálogo provienen de AIST Dance Video Database "
-        "(https://aistdancedb.ongaaccel.jp/). Uso sujeto a sus términos de uso."
-    )
 
     st.markdown(
         """
