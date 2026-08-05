@@ -36,6 +36,7 @@ class VideoPreparationConfig:
     target_fps: float = 15.0
     long_video_threshold_sec: float = 5 * 60
     long_video_fps: float = 8.0
+    max_trailing_missing_sec: float = 3.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,7 +100,12 @@ def prepare_video_for_analysis(
     """
 
     config = config or VideoPreparationConfig()
-    if config.max_height < 2 or config.target_fps <= 0 or config.long_video_fps <= 0:
+    if (
+        config.max_height < 2
+        or config.target_fps <= 0
+        or config.long_video_fps <= 0
+        or config.max_trailing_missing_sec < 0
+    ):
         raise ValueError("La configuración de preparación de video no es válida")
 
     source_metadata = metadata or inspect_video(path, role)
@@ -108,9 +114,9 @@ def prepare_video_for_analysis(
         if source_metadata.duration_sec > config.long_video_threshold_sec
         else config.target_fps
     )
-    warning = None
+    warnings: list[str] = []
     if target_fps < config.target_fps:
-        warning = (
+        warnings.append(
             f"Video largo: se utilizó una frecuencia de análisis de {target_fps:.0f} FPS "
             f"en lugar de {config.target_fps:.0f} FPS."
         )
@@ -142,12 +148,14 @@ def prepare_video_for_analysis(
         requested_sources.setdefault(source_index, []).append(output_index)
 
     written = 0
+    read_failure_index: int | None = None
     try:
         with open_video(path) as capture:
             source_index = 0
             while source_index < source_metadata.frame_count:
                 success, frame = capture.read()
                 if not success:
+                    read_failure_index = source_index
                     break
                 output_indices = requested_sources.get(source_index, [])
                 if output_indices:
@@ -162,7 +170,22 @@ def prepare_video_for_analysis(
     finally:
         writer.release()
 
-    if written != output_frame_count or not output_path.exists() or output_path.stat().st_size == 0:
+    trailing_missing_sec = 0.0
+    if read_failure_index is not None:
+        missing_source_frames = max(source_metadata.frame_count - read_failure_index, 0)
+        trailing_missing_sec = missing_source_frames / source_metadata.fps
+        if trailing_missing_sec <= config.max_trailing_missing_sec and written > 0:
+            warnings.append(
+                "El video reportó más frames de los que pudieron decodificarse; "
+                f"se omitieron aproximadamente {trailing_missing_sec:.1f} s al final."
+            )
+
+    tolerated_truncation = read_failure_index is not None and trailing_missing_sec <= config.max_trailing_missing_sec
+    if (
+        (written != output_frame_count and not tolerated_truncation)
+        or not output_path.exists()
+        or output_path.stat().st_size == 0
+    ):
         output_path.unlink(missing_ok=True)
         target_dir.rmdir()
         raise VideoReadError(
@@ -178,7 +201,7 @@ def prepare_video_for_analysis(
         target_fps=target_fps,
         resized=resized,
         original_duration_sec=source_metadata.duration_sec,
-        warning=warning,
+        warning=" ".join(warnings) if warnings else None,
     )
 
 
