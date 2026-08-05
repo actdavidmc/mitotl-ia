@@ -603,7 +603,7 @@ def _render_agent(result: dict[str, Any] | None) -> None:
             )
 
     # El historial tiene su propio scroll para que la entrada permanezca debajo.
-    chat_container = st.container(height=620, border=False)
+    chat_container = st.container(height=460, border=False)
     with chat_container:
         for message in messages:
             with st.chat_message(message["role"]):
@@ -669,9 +669,12 @@ def _render_instructions() -> bool:
         "El score orienta la práctica; no representa calidad artística profesional."
     )
     visual_review_mode = st.sidebar.checkbox(
-        "Revisar interfaz con sesión guardada",
+        "Ver demo de Mitotl IA",
         value=False,
-        help="Usa el JSON existente solo para probar el diseño sin volver a procesar los videos.",
+        help=(
+            "Muestra una sesión de prueba ya preparada con resultados, recomendaciones "
+            "y videos comparativos. El análisis real puede tardar más."
+        ),
     )
     st.sidebar.caption(
         "Las referencias del catálogo provienen de [AIST Dance Video Database]"
@@ -958,10 +961,16 @@ def main() -> None:
     st.markdown(
         """
         <style>
-        [role="tablist"] {
+        [data-testid="stTabs"] > div:first-child,
+        [data-testid="stTabs"] [role="tablist"] {
             display: flex !important;
             width: 100% !important;
             gap: 0 !important;
+            position: sticky !important;
+            top: 2.875rem !important;
+            z-index: 1000 !important;
+            padding: 0.35rem 0 0.2rem !important;
+            background: #0e1117 !important;
         }
         [role="tablist"] > div {
             flex: 1 1 0 !important;
