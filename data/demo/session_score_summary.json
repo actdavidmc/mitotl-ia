@@ -1,0 +1,95 @@
+{
+  "status": "preliminary",
+  "reference_video": "gBR_sBM_c01_d04_mBR0_ch01.mp4",
+  "execution_video": "execution_sBM_personal_01.mov",
+  "score_general": 66.03,
+  "body_scores_xy": {
+    "arms": 47.49,
+    "legs": 65.13,
+    "torso": 74.21,
+    "head": 78.91
+  },
+  "body_scores_xyz": {
+    "arms": 39.45,
+    "legs": 27.37,
+    "torso": 49.39,
+    "head": 45.64
+  },
+  "segment_scores": [
+    {
+      "segment": 1,
+      "temporal_similarity": 0.703,
+      "reference_start_time_sec": 0.0,
+      "reference_end_time_sec": 1.97,
+      "execution_start_time_sec": 0.0,
+      "execution_end_time_sec": 1.38
+    },
+    {
+      "segment": 2,
+      "temporal_similarity": 0.509,
+      "reference_start_time_sec": 1.99,
+      "reference_end_time_sec": 3.97,
+      "execution_start_time_sec": 1.40,
+      "execution_end_time_sec": 5.30
+    }
+  ],
+  "recommendations": [
+    {
+      "type": "body_part",
+      "body_part": "arms",
+      "similarity_xy_percent": 47.49,
+      "recommendation": "Revisar la trayectoria de los brazos."
+    },
+    {
+      "type": "body_part",
+      "body_part": "legs",
+      "similarity_xy_percent": 65.13,
+      "recommendation": "Revisar la posición y trayectoria de las piernas."
+    },
+    {
+      "type": "body_part",
+      "body_part": "torso",
+      "similarity_xy_percent": 74.21,
+      "recommendation": "Mantener la alineación del torso."
+    },
+    {
+      "type": "temporal",
+      "segment": 2,
+      "temporal_similarity": 0.509,
+      "recommendation": "Practicar el cambio de ritmo del segundo segmento."
+    }
+  ],
+  "top_findings": [
+    {
+      "reference_frame": 141,
+      "execution_frame": 171,
+      "reference_time_sec": 2.352,
+      "execution_time_sec": 2.851,
+      "landmark": "right_pinky",
+      "parte_cuerpo": "right_arm",
+      "diferencia_xy": 3.5064,
+      "severidad": "Alta"
+    },
+    {
+      "reference_frame": 141,
+      "execution_frame": 170,
+      "reference_time_sec": 2.352,
+      "execution_time_sec": 2.835,
+      "landmark": "right_index",
+      "parte_cuerpo": "right_arm",
+      "diferencia_xy": 3.4973,
+      "severidad": "Alta"
+    },
+    {
+      "reference_frame": 239,
+      "execution_frame": 319,
+      "reference_time_sec": 3.987,
+      "execution_time_sec": 5.319,
+      "landmark": "left_ankle",
+      "parte_cuerpo": "left_leg",
+      "diferencia_xy": 1.9034,
+      "severidad": "Media"
+    }
+  ],
+  "all_findings": []
+}

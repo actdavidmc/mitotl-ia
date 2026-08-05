@@ -167,6 +167,9 @@ def _load_inventory() -> pd.DataFrame:
 
 
 def _saved_session_path() -> Path:
+    demo_path = PROJECT_ROOT / "data" / "demo" / "session_score_summary.json"
+    if demo_path.exists():
+        return demo_path
     return PROJECT_ROOT / "data" / "derived" / "scores" / "session_score_summary.json"
 
 
@@ -200,6 +203,7 @@ def _load_saved_session() -> dict[str, Any] | None:
     return {
         "status": summary.get("status", "preliminary"),
         "pipeline_completed": True,
+        "saved_demo": path.parent.name == "demo",
         "reference": {"file_name": reference_name},
         "execution": {"file_name": execution_name},
         "pose": {"reference": reference_pose, "execution": execution_pose},
@@ -700,8 +704,50 @@ def _render_visualizations(result: dict[str, Any] | None) -> None:
         st.info("Las visualizaciones estarán disponibles después de ejecutar el análisis.")
         return
 
-    for warning in result.get("warnings", []):
-        st.warning(warning)
+    preparation = result.get("preparation", {})
+    preparation_warnings = [
+        ("Referencia", preparation.get("reference", {}).get("warning")),
+        ("Ejecución", preparation.get("execution", {}).get("warning")),
+    ]
+    legacy_warnings = result.get("warnings", [])
+    if not preparation and legacy_warnings:
+        preparation_warnings = [("Análisis", warning) for warning in legacy_warnings]
+    visible_warnings = [(label, warning) for label, warning in preparation_warnings if warning]
+    if visible_warnings:
+        warning_columns = st.columns(len(visible_warnings), gap="medium")
+        for column, (label, warning) in zip(warning_columns, visible_warnings):
+            with column:
+                st.warning(f"**{label}**\n\n{warning}")
+
+    if result.get("saved_demo"):
+        demo_visuals_dir = PROJECT_ROOT / "data" / "demo" / "visuals"
+        aligned_video = demo_visuals_dir / "mitotl_aligned_full.mp4"
+        if aligned_video.exists():
+            st.markdown("### Video comparativo sincronizado")
+            st.caption("Visualización precalculada para la demo; no vuelve a ejecutar el análisis.")
+            st.video(str(aligned_video))
+            st.download_button(
+                "Descargar video comparativo",
+                data=aligned_video.read_bytes(),
+                file_name=aligned_video.name,
+                mime="video/mp4",
+                key="download_demo_aligned_video",
+            )
+        clip_paths = sorted(demo_visuals_dir.glob("mitotl_momento_*.mp4"))
+        if clip_paths:
+            st.markdown("### Momentos críticos precalculados")
+            for index, clip_path in enumerate(clip_paths, start=1):
+                st.markdown(f"**Momento {index}**")
+                st.video(str(clip_path))
+                st.download_button(
+                    f"Descargar Momento {index}",
+                    data=clip_path.read_bytes(),
+                    file_name=clip_path.name,
+                    mime="video/mp4",
+                    key=f"download_demo_clip_{index}",
+                )
+        if aligned_video.exists() or clip_paths:
+            return
 
     reference_path, execution_path = _resolve_session_video_paths(result)
     if reference_path is None or execution_path is None:
