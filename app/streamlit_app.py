@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import base64
 import html
 import json
 import sys
@@ -14,7 +13,6 @@ from typing import Any
 
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -70,13 +68,14 @@ def _save_uploaded_file(uploaded_file: Any, prefix: str) -> Path:
     return Path(temporary_file.name)
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
-def _download_aist_video(url: str) -> bytes:
-    """Descarga una referencia AIST y conserva sus bytes en la caché de Streamlit."""
+def _download_aist_video(url: str, target_path: Path) -> None:
+    """Descarga una referencia AIST directamente a disco temporal."""
 
     request = Request(url, headers={"User-Agent": "Mitotl-IA/0.1"})
     with urlopen(request, timeout=90) as response:
-        return response.read()
+        with target_path.open("wb") as output:
+            while chunk := response.read(1024 * 1024):
+                output.write(chunk)
 
 
 def _materialize_aist_reference(selected_row: pd.Series) -> Path | None:
@@ -94,18 +93,16 @@ def _materialize_aist_reference(selected_row: pd.Series) -> Path | None:
         return None
 
     try:
-        with st.spinner(f"Descargando referencia {file_name}..."):
-            video_bytes = _download_aist_video(url)
         suffix = Path(file_name).suffix.lower() or ".mp4"
         temporary_file = tempfile.NamedTemporaryFile(
             prefix="mitotl_aist_reference_",
             suffix=suffix,
             delete=False,
         )
-        temporary_file.write(video_bytes)
-        temporary_file.flush()
         temporary_file.close()
         path = Path(temporary_file.name)
+        with st.spinner(f"Descargando referencia {file_name}..."):
+            _download_aist_video(url, path)
         cached_paths[file_name] = str(path)
         return path
     except Exception as error:
@@ -114,27 +111,9 @@ def _materialize_aist_reference(selected_row: pd.Series) -> Path | None:
 
 
 def _render_video_box(video_path: Path, *, height: int = 420) -> None:
-    """Muestra cualquier orientación de video dentro de una caja uniforme."""
+    """Muestra el video sin duplicarlo como Base64 en memoria."""
 
-    mime_by_suffix = {
-        ".mp4": "video/mp4",
-        ".mov": "video/quicktime",
-        ".webm": "video/webm",
-    }
-    mime_type = mime_by_suffix.get(video_path.suffix.lower(), "video/mp4")
-    encoded_video = base64.b64encode(video_path.read_bytes()).decode("ascii")
-    components.html(
-        f"""
-        <div style="width:100%; height:{height}px; background:#11131a; border-radius:0.5rem; overflow:hidden; display:flex; align-items:center; justify-content:center;">
-            <video controls style="width:100%; height:100%; object-fit:contain; background:#11131a;">
-                <source src="data:{mime_type};base64,{encoded_video}" type="{mime_type}">
-                Tu navegador no puede reproducir este video.
-            </video>
-        </div>
-        """,
-        height=height,
-        scrolling=False,
-    )
+    st.video(str(video_path))
 
 
 def _render_table_box(
