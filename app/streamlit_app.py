@@ -653,6 +653,20 @@ def _render_agent(result: dict[str, Any] | None) -> None:
 
 
 def _render_instructions() -> bool:
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"] [data-testid="stAlert"] {
+            padding: 0.65rem 0.75rem;
+        }
+        [data-testid="stSidebar"] [data-testid="stAlert"] p {
+            font-size: 0.82rem;
+            line-height: 1.35;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     stacked_logo_path = _brand_asset("stacked-logo-color.png")
     if stacked_logo_path.exists():
         logo_columns = st.sidebar.columns([1, 2, 1])
