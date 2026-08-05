@@ -973,6 +973,7 @@ def main() -> None:
             background: Canvas !important;
             border-bottom: 1px solid rgba(128, 128, 128, 0.35);
             box-shadow: 0 6px 12px -10px CanvasText;
+            overflow: visible !important;
         }
         [data-testid="stTabs"] [role="tablist"]::after {
             content: "";
