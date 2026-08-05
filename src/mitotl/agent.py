@@ -142,3 +142,35 @@ def ask_agent(
     if not output_text:
         raise AgentRequestError("La respuesta del agente no contiene texto")
     return output_text.strip()
+
+
+def stream_agent(
+    question: str,
+    session_result: Mapping[str, Any],
+    *,
+    client: OpenAI | None = None,
+    model: str | None = None,
+    instructions: str = STRONGER_PROMPT,
+):
+    """Genera la respuesta del agente progresivamente para la interfaz de chat."""
+
+    if client is None:
+        client, configured_model = create_agent_client()
+        model = model or configured_model
+    if not model:
+        raise AgentConfigurationError("No se configuró OPENAI_MODEL")
+    context_text = build_agent_context_text(session_result)
+    try:
+        stream = client.responses.create(
+            model=model,
+            instructions=instructions,
+            input=build_agent_input(question, context_text),
+            stream=True,
+        )
+        for event in stream:
+            if getattr(event, "type", None) == "response.output_text.delta":
+                delta = getattr(event, "delta", "")
+                if delta:
+                    yield delta
+    except Exception as error:
+        raise AgentRequestError(f"No fue posible obtener respuesta del agente: {error}") from error

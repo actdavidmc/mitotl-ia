@@ -21,9 +21,10 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from mitotl.agent import AgentConfigurationError, AgentRequestError, ask_agent  # noqa: E402
+from mitotl.agent import AgentConfigurationError, AgentRequestError, stream_agent  # noqa: E402
 from mitotl.pipeline import PipelineError, analyze_session  # noqa: E402
 from mitotl.prompts import BODY_PART_LABELS, LANDMARK_LABELS  # noqa: E402
+from mitotl.report import build_session_report  # noqa: E402
 from mitotl.visualizations import (  # noqa: E402
     VisualizationError,
     create_aligned_clip,
@@ -526,39 +527,84 @@ def _render_findings(result: dict[str, Any]) -> None:
         _render_table_box(findings_display, header_color="#FF0F00")
 
 
-def _render_agent(result: dict[str, Any] | None) -> None:
-    st.subheader("Asistente Mitotl IA")
-    st.markdown(
-        "Haz preguntas sobre los resultados para comprender qué practicar y por qué. "
-        "La retroalimentación es educativa y no sustituye una evaluación profesional."
+def _render_pdf_download(result: dict[str, Any]) -> None:
+    """Muestra la descarga del reporte resumido de la sesión."""
+
+    if "session_report_pdf" not in st.session_state:
+        try:
+            st.session_state["session_report_pdf"] = build_session_report(result)
+        except Exception as error:
+            st.error(f"No fue posible preparar el reporte PDF: {error}")
+            return
+    st.markdown("### Reporte de la sesión")
+    st.caption("Descarga un resumen con los scores, la sincronización, los hallazgos y las recomendaciones.")
+    st.download_button(
+        "Descargar resultados en PDF",
+        data=st.session_state["session_report_pdf"],
+        file_name="mitotl_reporte_sesion.pdf",
+        mime="application/pdf",
+        key="download_session_report_pdf",
+        type="primary",
     )
-    if result is None:
-        st.info("Primero carga los videos y ejecuta el análisis.")
-        return
+
+
+def _render_agent(result: dict[str, Any] | None) -> None:
+    """Renderiza el asistente con el patrón conversacional de Streamlit."""
+
+    st.title("💬 Asistente Mitotl IA")
+    st.caption("🎭 Una guía educativa para comprender tus resultados y practicar mejor.")
 
     messages = st.session_state.setdefault("agent_messages", [])
-    for message in messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    if not messages:
+        messages.append(
+            {
+                "role": "assistant",
+                "content": (
+                    "¡Hola! Soy el asistente de Mitotl IA. Puedo ayudarte a entender "
+                    "tus resultados, identificar qué practicar primero y explicar por qué. "
+                    "La retroalimentación es educativa y no sustituye una evaluación profesional."
+                ),
+            }
+        )
+        if result is None:
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": "Primero carga tus videos y ejecuta el análisis para que pueda ayudarte con una sesión concreta.",
+                }
+            )
 
+    # El historial tiene su propio scroll para que la entrada permanezca debajo.
+    chat_container = st.container(height=620, border=False)
+    with chat_container:
+        for message in messages:
+            with st.chat_message(message["role"]):
+                st.write(message["content"])
+
+    if result is None:
+        return
+
+    # El campo se declara después del historial para que visualmente quede al final.
     question = st.chat_input(
-        "Pregunta qué practicar, por qué o cómo interpretar un resultado...",
+        "Escribe tu pregunta sobre esta sesión...",
         key="agent_chat_input",
     )
     if question and question.strip():
-        messages.append({"role": "user", "content": question.strip()})
-        with st.chat_message("user"):
-            st.markdown(question.strip())
-        with st.chat_message("assistant"):
-            with st.spinner("Preparando retroalimentación..."):
-                try:
-                    response = ask_agent(question.strip(), result)
-                except (AgentConfigurationError, AgentRequestError) as error:
-                    response = f"No pude generar la respuesta: {error}"
-                    st.error(response)
-                else:
-                    st.markdown(response)
+        question_text = question.strip()
+        messages.append({"role": "user", "content": question_text})
+        try:
+            with chat_container:
+                with st.chat_message("user"):
+                    st.write(question_text)
+                with st.chat_message("assistant"):
+                    response = st.write_stream(stream_agent(question_text, result))
+        except (AgentConfigurationError, AgentRequestError) as error:
+            response = f"No pude generar la respuesta: {error}"
+            with chat_container:
+                st.error(response)
         messages.append({"role": "assistant", "content": response})
+        # En la siguiente ejecución el historial completo se dibuja antes del input.
+        st.rerun()
 
 
 def _render_instructions() -> bool:
@@ -905,6 +951,7 @@ def main() -> None:
             st.session_state.pop("critical_clips", None)
             st.session_state.pop("aligned_video", None)
             st.session_state.pop("agent_messages", None)
+            st.session_state.pop("session_report_pdf", None)
             st.success("Sesión analizada correctamente. Consulta las pestañas Resultados y Visualizaciones.")
 
     with kpis_tab:
@@ -915,6 +962,7 @@ def main() -> None:
             _render_temporal_sync(result)
             _render_recommendations(result)
             _render_findings(result)
+            _render_pdf_download(result)
 
     with visualizations_tab:
         _render_visualizations(result)
