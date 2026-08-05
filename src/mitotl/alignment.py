@@ -18,7 +18,7 @@ ANGLE_ORDER = [
     "left_knee", "right_knee", "left_hip", "right_hip",
 ]
 
-MAX_INTERPOLATED_GAP_SEC = 1.0
+MAX_INTERPOLATED_GAP_SEC = 2.0
 
 
 @dataclass(frozen=True, slots=True)
