@@ -979,8 +979,8 @@ def main() -> None:
             position: absolute;
             left: 0;
             right: 0;
-            bottom: -0.6rem;
-            height: 0.6rem;
+            bottom: -1rem;
+            height: 1rem;
             background: Canvas;
         }
         [role="tablist"] > div {
