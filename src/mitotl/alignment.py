@@ -18,6 +18,8 @@ ANGLE_ORDER = [
     "left_knee", "right_knee", "left_hip", "right_hip",
 ]
 
+MAX_INTERPOLATED_GAP_SEC = 1.0
+
 
 @dataclass(frozen=True, slots=True)
 class DTWConfig:
@@ -33,28 +35,78 @@ class AlignmentError(ValueError):
 
 
 def build_angle_sequence(feature_data: Mapping[str, Any]) -> tuple[list[int], list[float], list[list[float]]]:
-    """Construye un vector angular por frame usando el orden fijo del MVP."""
+    """Construye ángulos y rellena ausencias breves entre frames válidos.
+
+    MediaPipe puede perder una detección aislada aunque el video sea utilizable.
+    Esas ausencias se interpolan temporalmente; los huecos largos se rechazan
+    para no fabricar una trayectoria corporal poco confiable.
+    """
 
     frame_indices: list[int] = []
     timestamps: list[float] = []
-    angle_vectors: list[list[float]] = []
+    raw_vectors: list[list[float] | None] = []
     for frame in feature_data.get("frames", []):
-        if not frame.get("detected"):
-            raise AlignmentError(f"Frame sin detección: {frame.get('frame_index')}")
         missing_angles = [
             angle_name for angle_name in ANGLE_ORDER
             if frame.get("angles", {}).get(angle_name) is None
         ]
-        if missing_angles:
-            raise AlignmentError(
-                f"Faltan ángulos en el frame {frame.get('frame_index')}: {missing_angles}"
-            )
         frame_indices.append(int(frame["frame_index"]))
         timestamps.append(float(frame["timestamp_sec"]))
-        angle_vectors.append([float(frame["angles"][angle_name]) for angle_name in ANGLE_ORDER])
+        raw_vectors.append(
+            None
+            if not frame.get("detected") or missing_angles
+            else [float(frame["angles"][angle_name]) for angle_name in ANGLE_ORDER]
+        )
 
-    if not angle_vectors:
+    if not raw_vectors:
         raise AlignmentError("La secuencia de features no contiene frames")
+
+    valid_positions = [index for index, vector in enumerate(raw_vectors) if vector is not None]
+    if not valid_positions:
+        raise AlignmentError("La secuencia no contiene frames con ángulos válidos")
+
+    angle_vectors: list[list[float]] = []
+    missing_runs: list[tuple[int, int]] = []
+    run_start: int | None = None
+    for index, vector in enumerate(raw_vectors):
+        if vector is None and run_start is None:
+            run_start = index
+        elif vector is not None and run_start is not None:
+            missing_runs.append((run_start, index - 1))
+            run_start = None
+    if run_start is not None:
+        missing_runs.append((run_start, len(raw_vectors) - 1))
+
+    interpolated: dict[int, list[float]] = {}
+    for start, end in missing_runs:
+        left = start - 1 if start > 0 else None
+        right = end + 1 if end + 1 < len(raw_vectors) else None
+        left_time = timestamps[left] if left is not None else timestamps[right]  # type: ignore[index]
+        right_time = timestamps[right] if right is not None else timestamps[left]  # type: ignore[index]
+        gap_duration = abs(float(right_time) - float(left_time))
+        if gap_duration > MAX_INTERPOLATED_GAP_SEC:
+            raise AlignmentError(
+                f"Hueco de pose demasiado largo ({gap_duration:.2f} s) entre los frames "
+                f"{frame_indices[start]} y {frame_indices[end]}"
+            )
+
+        left_vector = raw_vectors[left] if left is not None else None
+        right_vector = raw_vectors[right] if right is not None else None
+        for index in range(start, end + 1):
+            if left_vector is not None and right_vector is not None:
+                ratio = (timestamps[index] - timestamps[left]) / (timestamps[right] - timestamps[left])
+                interpolated[index] = [
+                    left_value + ratio * (right_value - left_value)
+                    for left_value, right_value in zip(left_vector, right_vector)
+                ]
+            elif left_vector is not None:
+                interpolated[index] = list(left_vector)
+            elif right_vector is not None:
+                interpolated[index] = list(right_vector)
+
+    for index, vector in enumerate(raw_vectors):
+        angle_vectors.append(list(vector) if vector is not None else interpolated[index])
+
     return frame_indices, timestamps, angle_vectors
 
 

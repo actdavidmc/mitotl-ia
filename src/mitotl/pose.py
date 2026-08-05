@@ -16,7 +16,7 @@ from .video import iter_video_frames, inspect_video
 class PoseConfig:
     """Configuración reproducible del modelo usado por el MVP."""
 
-    model_complexity: int = 1
+    model_complexity: int = 0
     min_detection_confidence: float = 0.5
     min_tracking_confidence: float = 0.5
     expected_landmark_count: int = 33
