@@ -974,6 +974,15 @@ def main() -> None:
             border-bottom: 1px solid rgba(128, 128, 128, 0.35);
             box-shadow: 0 6px 12px -10px CanvasText;
         }
+        [data-testid="stTabs"] [role="tablist"]::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -0.6rem;
+            height: 0.6rem;
+            background: Canvas;
+        }
         [role="tablist"] > div {
             flex: 1 1 0 !important;
             width: 25% !important;
