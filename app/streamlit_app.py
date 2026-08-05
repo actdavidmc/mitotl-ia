@@ -9,6 +9,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+from urllib.request import Request, urlopen
 from typing import Any
 
 import pandas as pd
@@ -67,6 +68,49 @@ def _save_uploaded_file(uploaded_file: Any, prefix: str) -> Path:
     temporary_file.flush()
     temporary_file.close()
     return Path(temporary_file.name)
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def _download_aist_video(url: str) -> bytes:
+    """Descarga una referencia AIST y conserva sus bytes en la caché de Streamlit."""
+
+    request = Request(url, headers={"User-Agent": "Mitotl-IA/0.1"})
+    with urlopen(request, timeout=90) as response:
+        return response.read()
+
+
+def _materialize_aist_reference(selected_row: pd.Series) -> Path | None:
+    """Convierte la URL del inventario en un archivo temporal para OpenCV."""
+
+    file_name = str(selected_row.get("file_name", "reference.mp4"))
+    cached_paths = st.session_state.setdefault("aist_reference_paths", {})
+    cached_path = cached_paths.get(file_name)
+    if cached_path and Path(cached_path).exists():
+        return Path(cached_path)
+
+    url = str(selected_row.get("url", "")).strip()
+    if not url or url.lower() == "nan":
+        st.error("La referencia no tiene una URL de descarga disponible.")
+        return None
+
+    try:
+        with st.spinner(f"Descargando referencia {file_name}..."):
+            video_bytes = _download_aist_video(url)
+        suffix = Path(file_name).suffix.lower() or ".mp4"
+        temporary_file = tempfile.NamedTemporaryFile(
+            prefix="mitotl_aist_reference_",
+            suffix=suffix,
+            delete=False,
+        )
+        temporary_file.write(video_bytes)
+        temporary_file.flush()
+        temporary_file.close()
+        path = Path(temporary_file.name)
+        cached_paths[file_name] = str(path)
+        return path
+    except Exception as error:
+        st.error(f"No se pudo descargar la referencia desde AIST: {error}")
+        return None
 
 
 def _render_video_box(video_path: Path, *, height: int = 420) -> None:
@@ -223,10 +267,11 @@ def _reference_selector(inventory: pd.DataFrame) -> Path | None:
         return None
     selected_name = st.selectbox("Referencia del catálogo", inventory["file_name"].tolist())
     selected_path = _reference_dir() / selected_name
-    if not selected_path.exists():
-        st.warning("La referencia está registrada, pero el video no existe localmente.")
-        return None
     selected_row = inventory[inventory["file_name"] == selected_name].iloc[0]
+    if not selected_path.exists():
+        selected_path = _materialize_aist_reference(selected_row)
+        if selected_path is None:
+            return None
     st.caption(
         f"Género: {selected_row.get('genre', '—')} · "
         f"Duración: {float(selected_row.get('duration_sec', 0)):.2f} s · "
@@ -859,6 +904,10 @@ def main() -> None:
     else:
         st.title("Mitotl IA")
     st.write("Compara un video de referencia con tu ejecución y recibe una guía educativa de práctica.")
+    st.caption(
+        "Las referencias del catálogo provienen de AIST Dance Video Database "
+        "(https://aistdancedb.ongaaccel.jp/). Uso sujeto a sus términos de uso."
+    )
 
     st.markdown(
         """
