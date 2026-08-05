@@ -682,12 +682,6 @@ def _render_instructions() -> bool:
         "5. Consulta tus resultados y pregunta al agente."
     )
     st.sidebar.info(
-        "Por ahora, Mitotl IA está diseñado para analizar a **una sola persona**. "
-        "Procura que el cuerpo completo sea visible y que la cámara tenga una vista "
-        "frontal o similar a la del video de referencia. El análisis de grupos, "
-        "personas parcialmente visibles u oclusiones importantes todavía no está incluido."
-    )
-    st.sidebar.info(
         "El análisis compara pose, trayectoria y sincronización. "
         "El score orienta la práctica; no representa calidad artística profesional."
     )
@@ -929,6 +923,12 @@ def main() -> None:
     else:
         st.title("Mitotl IA")
     st.write("Compara un video de referencia con tu ejecución y recibe una guía educativa de práctica.")
+    st.info(
+        "Por ahora, Mitotl IA está diseñado para analizar a **una sola persona**. "
+        "Procura que el cuerpo completo sea visible y que la cámara tenga una vista "
+        "frontal o similar a la del video de referencia. El análisis de grupos, "
+        "personas parcialmente visibles u oclusiones importantes todavía no está incluido."
+    )
 
     st.markdown(
         """
