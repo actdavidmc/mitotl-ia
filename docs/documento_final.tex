@@ -13,6 +13,7 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{array}
+\usepackage{amsmath}
 \usepackage{xcolor}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric}
@@ -134,27 +135,47 @@ La representación derivada permite comparar movimiento sin depender directament
 
 \section{Análisis exploratorio y calidad de entrada}
 \subsection{Calidad de los videos}
-\pendiente{Duración, FPS, resolución, frames declarados y frames decodificados.}
+Antes de analizar el movimiento, el sistema inspecciona la extensión, la duración, el FPS, la resolución y la cantidad de frames declarada por el contenedor. Después genera una copia temporal de análisis con una altura máxima de 480 píxeles y un FPS objetivo de 30. Esta preparación reduce el costo computacional y conserva el archivo original sin modificarlo.
+
+La validación distingue entre errores que impiden continuar y advertencias que permiten generar resultados parciales. Por ejemplo, si el video reporta más frames de los que finalmente pueden decodificarse, se informa la diferencia y se continúa con los frames disponibles. La advertencia es relevante para interpretar el final del video, pero no implica que todo el análisis deba descartarse.
 \subsection{Detección corporal}
-\pendiente{Cobertura corporal, visibilidad y limitación a una persona.}
+MediaPipe Pose extrae hasta 33 landmarks por frame. Para cada punto se conservan sus coordenadas $x$, $y$, $z$ y un valor de visibilidad. La exploración revisa si existe detección, si los landmarks tienen la cantidad esperada y si los índices de frame y timestamps mantienen continuidad.
+
+El análisis se limita a una persona con el cuerpo completo visible y una cámara frontal o aproximadamente frontal. Cuando un frame no contiene detección, se conserva su posición temporal para no desplazar artificialmente la secuencia. Los huecos breves pueden tratarse durante la construcción de la secuencia angular; los huecos largos se reportan como una condición que reduce la confiabilidad.
 \subsection{Visualizaciones exploratorias}
-\pendiente{Evidencia de landmarks, poses y calidad de detección.}
+Las visualizaciones exploratorias superponen landmarks sobre frames seleccionados y contrastan poses de referencia y ejecución. También permiten inspeccionar el comportamiento de brazos, piernas, torso y cabeza, además de ubicar los segmentos con mayor diferencia. Estas vistas sirven como control de calidad: antes de interpretar un score se verifica que la detección corresponda realmente a la persona y al movimiento observado.
 
 \section{Ingeniería de variables}
 \subsection{Extracción y normalización}
-\pendiente{Coordenadas, ángulos, visibilidad, timestamps y normalización.}
+La extracción conserva coordenadas y marcas de tiempo por frame. Para hacer comparables dos videos con distinta escala o distancia a la cámara, las coordenadas se trasladan usando el centro de las caderas como origen y se escalan con la distancia entre el centro de hombros y el centro de caderas. Así, la comparación se concentra en la configuración relativa del cuerpo y no únicamente en su posición dentro de la imagen.
+
+Además de las coordenadas normalizadas, se calculan ocho ángulos articulares: codos, hombros, rodillas y caderas de ambos lados. La visibilidad se conserva como diagnóstico de calidad. También se derivan velocidades angulares y velocidades de landmarks cuando existen timestamps válidos, aunque el score principal utiliza la información corporal y temporal definida para esta versión.
 \subsection{Variables de comparación}
-\pendiente{Similitud corporal, diferencias angulares, trayectorias y segmentos.}
+La comparación alineada calcula diferencias euclidianas en el plano visible $XY$ y una diferencia espacial auxiliar en $XYZ$ para cada landmark compartido. Las diferencias se resumen por frame, landmark y parte corporal. Las partes amplias usadas en los resultados son brazos, piernas, torso y cabeza; los brazos y piernas se obtienen agrupando sus lados izquierdo y derecho.
+
+La secuencia de ocho ángulos se utiliza para sincronizar referencia y ejecución. Las variables temporales incluyen pares de frames alineados, desplazamiento de tiempo, duración de cada segmento, razón entre duraciones y similitud temporal. La coreografía se divide en segmentos de aproximadamente dos segundos para que los hallazgos puedan relacionarse con momentos revisables por la persona usuaria.
 \subsection{Preparación para visualización y feedback}
-\pendiente{Transformación de diferencias en indicadores comprensibles.}
+Una diferencia corporal no se presenta directamente como una lista de coordenadas. Se transforma en una similitud acotada mediante $s(d)=1/(1+d)$, se agrupa por parte del cuerpo y se convierte a una escala de 0 a 100. Los segmentos débiles se ordenan por sus diferencias y se acompañan con tiempos de referencia y ejecución.
+
+La estructura de resultados alimenta tanto las tarjetas y tablas de la interfaz como las recomendaciones y el contexto del asistente. Si falta información suficiente, el pipeline conserva el error o la advertencia por etapa para que la interfaz comunique qué ocurrió y si el resultado puede interpretarse con cautela.
 
 \section{Modelación}
 \subsection{Enfoque híbrido de la versión actual}
-\pendiente{MediaPipe, comparación geométrica, DTW y reglas.}
+La solución combina componentes deterministas y un modelo preentrenado. MediaPipe Pose estima landmarks; las variables normalizadas y angulares describen el movimiento; la comparación geométrica calcula diferencias; DTW alinea secuencias realizadas a velocidades distintas; y las reglas convierten los resultados en retroalimentación. Este enfoque es adecuado para el alcance actual porque permite explicar cómo se obtiene cada indicador y no requiere entrenar un clasificador de calidad artística.
 \subsection{Sincronización temporal con DTW}
-\pendiente{Motivación, funcionamiento y resultado de la alineación.}
+Dynamic Time Warping (DTW) encuentra un camino de correspondencias entre la secuencia angular de referencia y la de ejecución. Antes de calcularlo, cada uno de los ocho ángulos se estandariza usando la media y desviación combinadas de ambas secuencias. Esto reduce el efecto de escalas distintas entre variables y permite comparar la forma temporal del movimiento.
+
+La implementación conserva el camino DTW y lo traduce a pares de frames y timestamps. Los frames sin pose o con ángulos incompletos se mantienen en la línea temporal; las ausencias breves se interpolan y un hueco mayor a dos segundos se rechaza para evitar fabricar una trayectoria corporal poco confiable. El camino se proyecta después en segmentos de dos segundos.
 \subsection{Score y reglas de retroalimentación}
-\pendiente{Score general, scores por parte del cuerpo y catálogo de reglas.}
+El score general combina similitud corporal y similitud temporal con pesos explícitos:
+
+\[
+\text{score general}=100\left(0.80\,\text{similitud corporal}+0.20\,\text{similitud temporal}\right).
+\]
+
+La similitud corporal se calcula como el promedio de los grupos brazos, piernas, torso y cabeza. La similitud temporal se obtiene de la alineación y de la coincidencia de duración de los segmentos. El resultado se comunica como preliminar y orientativo, no como porcentaje de talento, error absoluto o calidad profesional.
+
+Las reglas priorizan los hallazgos con mayor diferencia y los traducen en mensajes de práctica: revisar una parte corporal, volver a un segmento temporal o repetir la secuencia observando una articulación. El asistente explica estos resultados sin inventar métricas que no estén disponibles.
 
 \section{Pipeline e inferencia}
 \begin{figure}[htbp]
@@ -184,7 +205,9 @@ La representación derivada permite comparar movimiento sin depender directament
   \caption{Flujo general de inferencia de Mitotl IA.}
   \label{fig:pipeline}
 \end{figure}
-\pendiente{Descripción detallada de cada etapa, entradas, salidas y errores controlados.}
+El pipeline recibe dos videos y produce una sesión estructurada. Primero valida y prepara cada entrada; después extrae pose y variables; construye la alineación temporal; compara landmarks en cada par DTW; calcula scores y segmentos; genera feedback; y entrega resultados a la interfaz, los clips y el asistente.
+
+Los errores se controlan por etapa. Una entrada inválida detiene el análisis con un mensaje específico; una copia temporal incompleta conserva los frames decodificados y advierte sobre el tramo omitido; un frame sin detección no se confunde con un frame inexistente; y un hueco largo de pose evita que DTW continúe con datos artificiales. Esta separación permite distinguir un problema del archivo de un resultado bajo de similitud.
 
 \section{Resultados}
 \subsection{Resultados cuantitativos}
@@ -202,7 +225,7 @@ La representación derivada permite comparar movimiento sin depender directament
 
 \section{Evaluación y reproducibilidad}
 \subsection{Pruebas del pipeline}
-\pendiente{Pruebas unitarias, prueba de humo y validación visual.}
+\pendiente{Pruebas unitarias, validación de una ejecución propia y validación visual.}
 \subsection{Despliegue}
 \pendiente{Ejecución local, Streamlit Cloud y dependencias.}
 \subsection{Manejo de errores}
