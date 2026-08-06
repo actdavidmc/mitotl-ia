@@ -89,7 +89,7 @@ El nicho de uso es el aprendizaje autónomo de danza mediante videos de referenc
 
 En este contexto, el video de referencia funciona como una guía visual y el video de ejecución como evidencia de la práctica. La necesidad no es ordenar a las personas por nivel ni establecer una calificación universal de la danza, sino ofrecer información localizada que permita repetir y ajustar una secuencia.
 \subsection{Usuario objetivo}
-La persona usuaria objetivo practica de manera individual y puede tener experiencia inicial o intermedia. Cuenta con un teléfono o una computadora para cargar o grabar un video, desea aprender una secuencia concreta y necesita una explicación comprensible sobre sus principales oportunidades de mejora.
+La persona usuaria objetivo practica de manera individual y puede tener experiencia inicial o intermedia. Cuenta con un teléfono o una computadora para cargar un video y necesita una explicación comprensible sobre sus principales oportunidades de mejora.
 
 Se asume que la persona puede colocar la cámara de frente y mantener el cuerpo completo dentro del encuadre. Este supuesto es importante porque la versión actual no está diseñada para grupos, personas parcialmente visibles ni situaciones en las que una parte importante del cuerpo quede tapada o fuera de la vista.
 \subsection{Problema y necesidad}
@@ -97,15 +97,15 @@ El problema es que una persona puede repetir una coreografía sin saber con prec
 
 De este problema se desprenden cuatro necesidades: localizar momentos específicos de dificultad; identificar las partes del cuerpo asociadas; recibir una explicación clara y accionable; y contar con una guía que permita volver a practicar la sección relevante. Mitotl IA atiende estas necesidades mediante comparación corporal y temporal, sin presentarse como sustituto de una evaluación profesional.
 \subsection{Propuesta de valor y caso de uso}
-La propuesta de valor de Mitotl IA es transformar dos videos en una guía de práctica localizada. La persona carga un video de referencia y un video de ejecución, espera el análisis y consulta un resultado compuesto por similitud corporal, similitud temporal, hallazgos y recomendaciones. También puede revisar una visualización comparativa y preguntar al asistente sobre la interpretación del resultado.
+La propuesta de valor de Mitotl IA es transformar dos videos en una guía de práctica localizada. La persona carga un video de referencia y un video de ejecución, espera el análisis y consulta un resultado compuesto por similitud corporal, similitud temporal, hallazgos y recomendaciones. También puede revisar una visualización comparativa y consultar al asistente.
 
-El caso de uso principal es una sesión de práctica individual: seleccionar una secuencia, grabar o cargar la ejecución, revisar las diferencias más relevantes y repetir la sección con base en la retroalimentación. El sistema no evalúa calidad artística profesional, musicalidad, expresividad o intención escénica. Su salida es una aproximación computacional orientada a comparar movimiento observable.
+El caso de uso principal es una sesión de práctica individual: seleccionar una secuencia, cargar la ejecución, revisar las diferencias más relevantes y repetir la sección con base en la retroalimentación.
 
 \section{Estrategia de solución}
 \subsection{Accionables}
 La estrategia prioriza resultados que puedan convertirse en acciones inmediatas. A partir del análisis, la persona puede: revisar el segmento temporal con mayor diferencia; concentrarse en una parte del cuerpo; observar la referencia y la ejecución en paralelo; repetir la sección crítica; y utilizar el asistente para aclarar el significado de un indicador.
 
-El score general se comunica como una señal de orientación y no como una calificación definitiva. La interfaz debe favorecer la interpretación por evidencia: score, momento, parte del cuerpo y recomendación se presentan juntos para evitar que un número aislado sea la única conclusión.
+La interfaz debe favorecer la interpretación por evidencia: score, momento, parte del cuerpo y recomendación se presentan juntos para evitar que un número aislado sea la única conclusión.
 \subsection{Usabilidad y usuarios}
 El flujo está organizado alrededor de cuatro momentos: cargar los videos, ejecutar el análisis, revisar resultados y consultar la retroalimentación. La interfaz conserva una navegación por pestañas para separar videos, resultados, visualizaciones y asistente. Para una demostración, también se dispone de una sesión precalculada que permite revisar la interfaz sin esperar nuevamente todo el procesamiento.
 
@@ -119,7 +119,7 @@ Quedan fuera del alcance inmediato la evaluación artística profesional, el an�
 \subsection{Fuentes de referencia y ejecución}
 La fuente académica principal para el video de referencia es AIST Dance Video Database, una colección de videos de danza utilizada para construir y validar el flujo inicial. Se selecciona una secuencia con una persona, vista frontal y cuerpo completo visible. La referencia se emplea para probar la extracción de pose, la comparación corporal y la sincronización temporal, no para definir una verdad absoluta sobre cómo debe bailar una persona.
 
-El video de ejecución representa la práctica propia que se desea comparar. Para validar el flujo se utilizó una ejecución grabada por la persona desarrolladora, distinta del video de referencia. Esta evidencia permite revisar el funcionamiento de la comparación, pero no basta para medir aprendizaje, generalización o calidad de danza en una población amplia.
+El video de ejecución representa la práctica propia que se desea comparar. Para validar el flujo se utilizó una ejecución grabada por la persona desarrolladora, distinta del video de referencia. Esta entrada permite revisar el funcionamiento de la comparación.
 
 Como posible fuente complementaria se documenta AIST++, pero sus anotaciones no se descargaron ni forman parte del flujo actual. La referencia queda como una línea futura para explorar landmarks, confianza y cobertura corporal mediante un mapeo entre sus 17 keypoints COCO y los 33 landmarks de MediaPipe. No se utiliza como conjunto etiquetado de personas que bailan bien o mal.
 \subsection{Restricciones de uso}
@@ -139,7 +139,7 @@ La validación distingue entre errores que impiden continuar y advertencias que 
 \subsection{Detección corporal}
 MediaPipe Pose extrae hasta 33 landmarks por frame \cite{mediapipe}. Para cada punto se conservan sus coordenadas $x$, $y$, $z$ y un valor de visibilidad. La exploración revisa si existe detección, si los landmarks tienen la cantidad esperada y si los índices de frame y timestamps mantienen continuidad.
 
-Como resumen descriptivo del conjunto de referencias disponible, el archivo de calidad de pose registra diez videos. Nueve contienen todos sus frames procesados y uno presenta una detección faltante; las tasas de detección se encuentran entre 99.9\% y 100\%, la visibilidad promedio entre 0.8389 y 0.9843, y el FPS original es 59.94. Este resumen permite identificar que la principal variación de entrada está en la visibilidad de los puntos, no en una pérdida generalizada de frames.
+Como resumen descriptivo del conjunto de referencias disponible, el archivo de calidad de pose registra diez videos. Nueve contienen todos sus frames procesados y uno presenta una detección faltante; las tasas de detección se encuentran entre 99.9\% y 100\%, la visibilidad promedio entre 0.8389 y 0.9843, y el FPS original es 59.94. La principal variación de entrada está en la visibilidad de los puntos, no en una pérdida generalizada de frames.
 
 El análisis se limita a una persona con el cuerpo completo visible y una cámara frontal o aproximadamente frontal. Cuando un frame no contiene detección, se conserva su posición temporal para no desplazar artificialmente la secuencia. Los huecos breves pueden tratarse durante la construcción de la secuencia angular; los huecos largos se reportan como una condición que reduce la confiabilidad.
 \subsection{Visualizaciones exploratorias}
@@ -166,6 +166,15 @@ La solución combina componentes deterministas y un modelo preentrenado. MediaPi
 Dynamic Time Warping (DTW) encuentra un camino de correspondencias entre la secuencia angular de referencia y la de ejecución \cite{dtw}. Antes de calcularlo, cada uno de los ocho ángulos se estandariza usando la media y desviación combinadas de ambas secuencias. Esto reduce el efecto de escalas distintas entre variables y permite comparar la forma temporal del movimiento.
 
 La implementación conserva el camino DTW y lo traduce a pares de frames y timestamps. Los frames sin pose o con ángulos incompletos se mantienen en la línea temporal; las ausencias breves se interpolan y un hueco mayor a dos segundos se rechaza para evitar fabricar una trayectoria corporal poco confiable. El camino se proyecta después en segmentos de dos segundos.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figuras/notebook_dtw_alignment_path.png}
+  \caption{Camino de alineación temporal producido por el Notebook 05.}
+  \label{fig:dtw-path-notebook}
+\end{figure}
+
+La figura muestra que la correspondencia se aparta de la diagonal en distintos tramos: la ejecución no avanza a la misma velocidad que la referencia. Esta evidencia respalda el uso de DTW para comparar momentos equivalentes sin exigir que ambos videos tengan la misma duración ni el mismo número de frames.
 \subsection{Score y reglas de retroalimentación}
 El score general combina similitud corporal y similitud temporal con pesos explícitos:
 
@@ -233,6 +242,15 @@ La sesión guardada para la demostración compara una referencia AIST con una ej
   \end{tabularx}
 \end{table}
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.88\textwidth]{figuras/notebook_body_scores_xy_xyz.png}
+  \caption{Scores corporales en los planos XY y XYZ producidos por el Notebook 06.}
+  \label{fig:body-scores-notebook}
+\end{figure}
+
+Los valores de la tabla corresponden al resumen JSON versionado para la demo. Al reconstruir los artefactos con los notebooks el 05 de agosto de 2026 se obtuvieron valores redondeados de 66.00 para el score general, 47.39 para brazos, 65.09 para piernas, 74.20 para torso y 78.90 para cabeza. La diferencia respecto del resumen de demo (66.03, 47.49, 65.13, 74.21 y 78.91) es pequeña y no modifica la interpretación; se conserva esta distinción para separar la sesión congelada que carga la interfaz de una reejecución del pipeline.
+
 El score corporal promedio fue 66.44\% y la similitud temporal fue 64.39\%. La ponderación utilizada fue 80\% para similitud corporal y 20\% para similitud temporal, de acuerdo con la definición de la versión actual.
 \subsection{Hallazgos y recomendaciones}
 El resultado identifica los brazos como la principal oportunidad de mejora, con 47.49\% de similitud agrupada. En los registros de mayor diferencia aparecen landmarks de la mano derecha alrededor de los 2.35 segundos de referencia y 2.85 segundos de ejecución. También se observan diferencias en la trayectoria de las piernas, particularmente cerca del primer segmento.
@@ -251,11 +269,11 @@ Como evidencia del control de calidad de pose, la Figura~\ref{fig:landmarks-vali
 
 \section{Interfaz de uso}
 \subsection{Flujo de análisis}
-La interfaz organiza la experiencia en cuatro pestañas: Videos, Resultados, Visualizaciones y Asistente. En Videos se cargan la referencia y la ejecución mediante archivos de video. El botón de análisis inicia la preparación, extracción, alineación y cálculo de resultados; el estado del proceso comunica la etapa actual.
+La interfaz organiza la experiencia en cuatro pestañas: Videos, Resultados, Visualizaciones y Asistente. En Videos se cargan la referencia y la ejecución mediante archivos de video. El botón de análisis inicia la preparación, extracción, alineación y cálculo de resultados.
 
 En Resultados se presentan el score general, los scores por brazos, piernas, torso y cabeza, la similitud temporal, los hallazgos y las recomendaciones. Visualizaciones muestra la comparación sincronizada, los clips críticos y, cuando aplica, las advertencias separadas para referencia y ejecución. Asistente permite preguntar sobre la sesión y recibe el contexto de scores, segmentos débiles y recomendaciones. La pestaña Videos recibe archivos de video; no ofrece captura directa desde la cámara.
 
-La Figura~\ref{fig:interfaz-resultados} muestra la pantalla de resultados de la sesión precalculada. La información se presenta en tarjetas y bloques de lectura rápida para que la persona identifique primero el score general y después las partes del cuerpo que conviene practicar.
+La Figura~\ref{fig:interfaz-resultados} muestra la pantalla de resultados de la sesión precalculada, organizada para identificar primero el score general y después las partes del cuerpo que conviene practicar.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{figuras/interfaz_resultados_demo.png}
@@ -271,7 +289,7 @@ La Figura~\ref{fig:interfaz-visualizaciones} documenta la pestaña de visualizac
   \label{fig:interfaz-visualizaciones}
 \end{figure}
 \subsection{Demo precalculada}
-La aplicación puede cargar la sesión guardada desde el JSON versionado de la demo. Esta opción permite demostrar la navegación, los resultados y los videos comparativos sin volver a ejecutar el procesamiento completo. La sesión precalculada está identificada como demo y no sustituye el flujo de análisis con videos nuevos.
+La aplicación puede cargar la sesión guardada desde el JSON versionado de la demo. Esta opción permite demostrar la navegación, los resultados y los videos comparativos sin volver a ejecutar el procesamiento completo; no sustituye el flujo de análisis con videos nuevos.
 
 La demo utiliza recursos ligeros ya incluidos en el repositorio: el resumen JSON y los cuatro videos comparativos. Esto mantiene el tiempo de espera de la demostración bajo control; el análisis de una sesión nueva puede tardar más dependiendo de la duración, resolución, decodificación y disponibilidad de recursos.
 
@@ -310,7 +328,7 @@ Tercero, AIST no se trata como un conjunto etiquetado de desempeño correcto o i
 \subsection{Conclusiones}
 La versión documentada demuestra un flujo reproducible para comparar una referencia de danza con una ejecución propia. La combinación de landmarks, variables normalizadas, DTW, scores y reglas permite convertir una diferencia visual general en puntos de revisión más concretos. En la sesión guardada, los brazos y el segundo segmento temporal concentran las principales oportunidades de práctica.
 
-El valor de la herramienta está en localizar y explicar momentos de la comparación, no en reemplazar a un instructor ni producir una calificación definitiva. La interfaz, los clips y la sesión precalculada hacen posible presentar el resultado de manera comprensible y verificable.
+El valor de la herramienta está en localizar y explicar momentos de la comparación. La interfaz, los clips y la sesión precalculada permiten presentar el resultado de manera comprensible y verificable.
 \subsection{Trabajo futuro}
 Como trabajo futuro se consideran el análisis de varias personas, un historial de sesiones, personalización de recomendaciones, métricas de ritmo y suavidad, sincronización con música, mayor tolerancia a cambios de cámara y modelos temporales especializados. Estas extensiones requieren datos autorizados, criterios de evaluación más amplios y pruebas con usuarios reales.
 
