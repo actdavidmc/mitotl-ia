@@ -969,20 +969,11 @@ def main() -> None:
             position: sticky !important;
             top: 3rem !important;
             z-index: 1000 !important;
-            padding: 0.35rem 0 0.5rem !important;
+            padding: 0.35rem 0 0.2rem !important;
             background: Canvas !important;
             border-bottom: 1px solid rgba(128, 128, 128, 0.35);
             box-shadow: 0 6px 12px -10px CanvasText;
             overflow: visible !important;
-        }
-        [data-testid="stTabs"] [role="tablist"]::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: -1rem;
-            height: 1rem;
-            background: Canvas;
         }
         [role="tablist"] > div {
             flex: 1 1 0 !important;
