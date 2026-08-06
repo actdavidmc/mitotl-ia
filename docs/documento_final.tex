@@ -75,36 +75,62 @@
 
 \section*{Resumen ejecutivo}
 \addcontentsline{toc}{section}{Resumen ejecutivo}
-\pendiente{Resumen de problema, usuario, solución, método y resultado principal.}
+Mitotl IA es una herramienta de apoyo para la práctica autónoma de danza. A partir de un video de referencia y un video de ejecución, el sistema identifica diferencias observables en el movimiento corporal y las convierte en una retroalimentación orientada a la práctica. El objetivo no es emitir un juicio artístico profesional, sino ayudar a responder preguntas concretas: en qué momento aparece una diferencia, qué parte del cuerpo conviene revisar y qué acción puede intentar la persona usuaria.
+
+La versión actual trabaja con una sola persona y requiere que el cuerpo completo sea visible. Su flujo combina validación de video, extracción de pose, variables geométricas, sincronización temporal y reglas de retroalimentación. El resultado se presenta mediante un score orientativo, indicadores por parte del cuerpo, visualizaciones comparativas, clips críticos y un asistente conversacional básico. La validación se realizó con un video de referencia y una ejecución propia; por tanto, no constituye una evaluación general de desempeño artístico.
 
 \section{Introducción}
-\pendiente{Contexto general, propósito del documento y alcance del MVP.}
+Aprender una coreografía mediante videos permite practicar en horarios y espacios diversos, pero también desplaza a la persona practicante la tarea de detectar sus propios errores. La comparación visual directa puede ser insuficiente cuando la diferencia ocurre durante un instante, afecta una articulación específica o se presenta con una velocidad distinta entre la referencia y la ejecución.
+
+Este documento presenta el diseño y desarrollo de Mitotl IA como una solución aplicada de ciencia de datos. Se describe el problema de uso, la estrategia de la versión actual, la procedencia de los datos, el procesamiento previsto y la evidencia de la aplicación. El reporte distingue entre lo que está implementado y las capacidades que permanecen como trabajo futuro.
 
 \section{Planteamiento del problema}
 \subsection{Nicho y contexto de uso}
-\pendiente{Aprendizaje autónomo de danza mediante videos de referencia.}
+El nicho de uso es el aprendizaje autónomo de danza mediante videos de referencia. Incluye a personas que practican coreografías, ejercicios o tendencias difundidas en plataformas como TikTok y YouTube, así como a quienes siguen una clase grabada sin contar necesariamente con un espejo, un salón especializado o la observación continua de un instructor.
+
+En este contexto, el video de referencia funciona como una guía visual y el video de ejecución como evidencia de la práctica. La necesidad no es ordenar a las personas por nivel ni establecer una calificación universal de la danza, sino ofrecer información localizada que permita repetir y ajustar una secuencia.
 \subsection{Usuario objetivo}
-\pendiente{Perfil de la persona que practica coreografías y necesita retroalimentación.}
+La persona usuaria objetivo practica de manera individual y puede tener experiencia inicial o intermedia. Cuenta con un teléfono o una computadora para cargar o grabar un video, desea aprender una secuencia concreta y necesita una explicación comprensible sobre sus principales oportunidades de mejora.
+
+Se asume que la persona puede colocar la cámara de frente y mantener el cuerpo completo dentro del encuadre. Este supuesto es importante porque la versión actual no está diseñada para grupos, personas parcialmente visibles ni situaciones en las que una parte importante del cuerpo quede tapada o fuera de la vista.
 \subsection{Problema y necesidad}
-\pendiente{Dificultad para identificar momentos y partes del cuerpo que requieren práctica.}
+El problema es que una persona puede repetir una coreografía sin saber con precisión qué está fallando. La observación subjetiva permite reconocer que algo no coincide, pero no siempre permite localizar el momento, distinguir si la diferencia proviene de brazos, piernas o torso, ni convertir esa observación en una instrucción práctica.
+
+De este problema se desprenden cuatro necesidades: localizar momentos específicos de dificultad; identificar las partes del cuerpo asociadas; recibir una explicación clara y accionable; y contar con una guía que permita volver a practicar la sección relevante. Mitotl IA atiende estas necesidades mediante comparación corporal y temporal, sin presentarse como sustituto de una evaluación profesional.
 \subsection{Propuesta de valor y caso de uso}
-\pendiente{Flujo principal de Mitotl IA y límites del MVP.}
+La propuesta de valor de Mitotl IA es transformar dos videos en una guía de práctica localizada. La persona carga un video de referencia y un video de ejecución, espera el análisis y consulta un resultado compuesto por similitud corporal, similitud temporal, hallazgos y recomendaciones. También puede revisar una visualización comparativa y preguntar al asistente sobre la interpretación del resultado.
+
+El caso de uso principal es una sesión de práctica individual: seleccionar una secuencia, grabar o cargar la ejecución, revisar las diferencias más relevantes y repetir la sección con base en la retroalimentación. El sistema no evalúa calidad artística profesional, musicalidad, expresividad o intención escénica. Su salida es una aproximación computacional orientada a comparar movimiento observable.
 
 \section{Estrategia de solución}
 \subsection{Accionables}
-\pendiente{Decisiones concretas que la persona usuaria puede tomar a partir de los resultados.}
+La estrategia prioriza resultados que puedan convertirse en acciones inmediatas. A partir del análisis, la persona puede: revisar el segmento temporal con mayor diferencia; concentrarse en una parte del cuerpo; observar la referencia y la ejecución en paralelo; repetir la sección crítica; y utilizar el asistente para aclarar el significado de un indicador.
+
+El score general se comunica como una señal de orientación y no como una calificación definitiva. La interfaz debe favorecer la interpretación por evidencia: score, momento, parte del cuerpo y recomendación se presentan juntos para evitar que un número aislado sea la única conclusión.
 \subsection{Usabilidad y usuarios}
-\pendiente{Cómo la interfaz responde a las necesidades identificadas.}
-\subsection{Alcance del MVP}
-\pendiente{Capacidades incluidas, capacidades ideales y futuras versiones.}
+El flujo está organizado alrededor de cuatro momentos: cargar los videos, ejecutar el análisis, revisar resultados y consultar la retroalimentación. La interfaz conserva una navegación por pestañas para separar videos, resultados, visualizaciones y asistente. Para una demostración, también se dispone de una sesión precalculada que permite revisar la interfaz sin esperar nuevamente todo el procesamiento.
+
+Los mensajes de la aplicación distinguen advertencias de la referencia y de la ejecución. Esto es relevante cuando un video contiene frames que no pudieron decodificarse o momentos sin detección corporal: la advertencia informa una condición técnica sin convertirla automáticamente en un juicio sobre la persona.
+\subsection{Alcance de la versión actual}
+La versión actual incluye análisis de videos cargados, extracción de pose con MediaPipe, comparación de movimiento, alineación temporal, score orientativo, recomendaciones, visualización comparativa, clips críticos y un asistente básico. La captura mediante cámara y el análisis posterior forman parte del flujo previsto; el feedback perfectamente en tiempo real no es un requisito de esta versión.
+
+Quedan fuera del alcance inmediato la evaluación artística profesional, el análisis de varias personas, la personalización longitudinal, los planes de práctica adaptativos, la sincronización musical avanzada y los modelos especializados entrenados con etiquetas de calidad de danza. Estas capacidades pueden explorarse en versiones futuras después de reunir datos autorizados y criterios de evaluación adecuados.
 
 \section{Descripción de los datos}
 \subsection{Fuentes de referencia y ejecución}
-\pendiente{AIST Dance Video Database, video de ejecución y procedencia.}
+La fuente académica principal para el video de referencia es AIST Dance Video Database, una colección de videos de danza utilizada para construir y validar el flujo inicial. Se selecciona una secuencia con una persona, vista frontal y cuerpo completo visible. La referencia se emplea para probar la extracción de pose, la comparación corporal y la sincronización temporal, no para definir una verdad absoluta sobre cómo debe bailar una persona.
+
+El video de ejecución representa la práctica propia que se desea comparar. Para validar el flujo se utilizó una ejecución grabada por la persona desarrolladora, distinta del video de referencia. Esta evidencia permite revisar el funcionamiento de la comparación, pero no basta para medir aprendizaje, generalización o calidad de danza en una población amplia.
+
+Como fuente complementaria se considera AIST++, que aporta anotaciones y referencias de movimiento útiles para explorar landmarks, confianza y cobertura corporal. Su función es apoyar la validación técnica; no se utiliza como conjunto etiquetado de personas que bailan bien o mal.
 \subsection{Restricciones de uso}
-\pendiente{Términos de AIST, no redistribución y tratamiento de videos.}
+El uso de los videos de AIST está sujeto a sus términos de uso y a las condiciones académicas de la fuente \cite{aist,aistterms}. Los archivos de video utilizados localmente no deben redistribuirse dentro del repositorio. Por esa razón, el proyecto conserva metadatos y rutas esperadas, pero excluye los videos privados o descargados de los artefactos versionados.
+
+Los videos aportados por una persona usuaria deberán contar con autorización o una licencia compatible con el análisis. La aplicación debe tratar estos archivos como entradas temporales de procesamiento y evitar presentarlos como material público. La documentación separa explícitamente procedencia, permiso de uso y datos derivados para que una ejecución reproducible no dependa de un archivo privado.
 \subsection{Datos derivados}
-\pendiente{Landmarks, coordenadas, ángulos, trayectorias, tiempos y scores.}
+Mitotl IA genera datos derivados a partir de cada video. Entre ellos se encuentran los landmarks corporales, coordenadas normalizadas, visibilidad de puntos, ángulos articulares, trayectorias, marcas de tiempo, segmentos temporales, diferencias entre referencia y ejecución y scores. Estos datos no son una nueva fuente externa: son resultados calculados por el pipeline.
+
+La representación derivada permite comparar movimiento sin depender directamente de la resolución o del tamaño original del video. También permite producir evidencia comprensible para la interfaz, como diferencias por parte del cuerpo y momentos críticos. En etapas posteriores se documentarán con mayor detalle las variables, la normalización, la modelación y las reglas de retroalimentación.
 
 \section{Análisis exploratorio y calidad de entrada}
 \subsection{Calidad de los videos}
@@ -123,7 +149,7 @@
 \pendiente{Transformación de diferencias en indicadores comprensibles.}
 
 \section{Modelación}
-\subsection{Enfoque híbrido del MVP}
+\subsection{Enfoque híbrido de la versión actual}
 \pendiente{MediaPipe, comparación geométrica, DTW y reglas.}
 \subsection{Sincronización temporal con DTW}
 \pendiente{Motivación, funcionamiento y resultado de la alineación.}
