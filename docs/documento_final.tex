@@ -52,11 +52,9 @@
 \setlength{\headheight}{15pt}
 
 
-\newcommand{\autor}{[Nombre del autor]}
 \newcommand{\institucion}{Facultad de Estudios Superiores Acatlán}
 \newcommand{\curso}{Módulo 5 --- Diplomado en Ciencia de Datos}
 \newcommand{\fechaentrega}{05 de agosto de 2026}
-\newcommand{\pendiente}[1]{\textcolor{placeholder}{\textit{Pendiente V1--V4: #1}}}
 
 \title{Análisis, comparación y retroalimentación de movimiento corporal en videos de danza}
 \author{David Magaña Celis}
@@ -139,7 +137,9 @@ Antes de analizar el movimiento, el sistema inspecciona la extensión, la duraci
 
 La validación distingue entre errores que impiden continuar y advertencias que permiten generar resultados parciales. Por ejemplo, si el video reporta más frames de los que finalmente pueden decodificarse, se informa la diferencia y se continúa con los frames disponibles. La advertencia es relevante para interpretar el final del video, pero no implica que todo el análisis deba descartarse.
 \subsection{Detección corporal}
-MediaPipe Pose extrae hasta 33 landmarks por frame. Para cada punto se conservan sus coordenadas $x$, $y$, $z$ y un valor de visibilidad. La exploración revisa si existe detección, si los landmarks tienen la cantidad esperada y si los índices de frame y timestamps mantienen continuidad.
+MediaPipe Pose extrae hasta 33 landmarks por frame \cite{mediapipe}. Para cada punto se conservan sus coordenadas $x$, $y$, $z$ y un valor de visibilidad. La exploración revisa si existe detección, si los landmarks tienen la cantidad esperada y si los índices de frame y timestamps mantienen continuidad.
+
+Como resumen descriptivo del conjunto de referencias disponible, el archivo de calidad de pose registra diez videos. Nueve contienen todos sus frames procesados y uno presenta una detección faltante; las tasas de detección se encuentran entre 99.9\% y 100\%, la visibilidad promedio entre 0.8389 y 0.9843, y el FPS original es 59.94. Este resumen permite identificar que la principal variación de entrada está en la visibilidad de los puntos, no en una pérdida generalizada de frames.
 
 El análisis se limita a una persona con el cuerpo completo visible y una cámara frontal o aproximadamente frontal. Cuando un frame no contiene detección, se conserva su posición temporal para no desplazar artificialmente la secuencia. Los huecos breves pueden tratarse durante la construcción de la secuencia angular; los huecos largos se reportan como una condición que reduce la confiabilidad.
 \subsection{Visualizaciones exploratorias}
@@ -161,9 +161,9 @@ La estructura de resultados alimenta tanto las tarjetas y tablas de la interfaz 
 
 \section{Modelación}
 \subsection{Enfoque híbrido de la versión actual}
-La solución combina componentes deterministas y un modelo preentrenado. MediaPipe Pose estima landmarks; las variables normalizadas y angulares describen el movimiento; la comparación geométrica calcula diferencias; DTW alinea secuencias realizadas a velocidades distintas; y las reglas convierten los resultados en retroalimentación. Este enfoque es adecuado para el alcance actual porque permite explicar cómo se obtiene cada indicador y no requiere entrenar un clasificador de calidad artística.
+La solución combina componentes deterministas y un modelo preentrenado. MediaPipe Pose estima landmarks; las variables normalizadas y angulares describen el movimiento; la comparación geométrica calcula diferencias; DTW alinea secuencias realizadas a velocidades distintas; y las reglas convierten los resultados en retroalimentación. Este enfoque funciona como una línea base explicable: cada salida puede rastrearse hasta un frame, landmark, segmento o regla, y no requiere entrenar un clasificador de calidad artística. La evaluación se realiza con scores corporales, similitud temporal, pares DTW, segmentos débiles, revisión visual y pruebas unitarias; no se reporta exactitud de clasificación porque el proyecto no cuenta con etiquetas de calidad artística.
 \subsection{Sincronización temporal con DTW}
-Dynamic Time Warping (DTW) encuentra un camino de correspondencias entre la secuencia angular de referencia y la de ejecución. Antes de calcularlo, cada uno de los ocho ángulos se estandariza usando la media y desviación combinadas de ambas secuencias. Esto reduce el efecto de escalas distintas entre variables y permite comparar la forma temporal del movimiento.
+Dynamic Time Warping (DTW) encuentra un camino de correspondencias entre la secuencia angular de referencia y la de ejecución \cite{dtw}. Antes de calcularlo, cada uno de los ocho ángulos se estandariza usando la media y desviación combinadas de ambas secuencias. Esto reduce el efecto de escalas distintas entre variables y permite comparar la forma temporal del movimiento.
 
 La implementación conserva el camino DTW y lo traduce a pares de frames y timestamps. Los frames sin pose o con ángulos incompletos se mantienen en la línea temporal; las ausencias breves se interpolan y un hueco mayor a dos segundos se rechaza para evitar fabricar una trayectoria corporal poco confiable. El camino se proyecta después en segmentos de dos segundos.
 \subsection{Score y reglas de retroalimentación}
@@ -219,7 +219,7 @@ La sesión guardada para la demostración compara la referencia \texttt{gBR\_sBM
   \label{tab:resultados-sesion}
   \begin{tabularx}{0.82\textwidth}{>{\raggedright\arraybackslash}X>{\centering\arraybackslash}p{2.2cm}>{\centering\arraybackslash}p{2.2cm}}
     \toprule
-    Indicador & Resultado & Interpretación \ \\
+    Indicador & Resultado & Interpretación \\\\
     \midrule
     Score general & 66.03 & Orientativo \\
     Brazos & 47.49 & Área prioritaria \\
@@ -289,6 +289,8 @@ Finalmente, la Figura~\ref{fig:interfaz-asistente} muestra el asistente dentro d
 El repositorio incluye pruebas unitarias para validación de archivos, preparación de videos, extracción de variables, alineación, comparación, score, feedback, generación de reportes, visualizaciones y contrato del agente. También existe una sesión dorada en \texttt{tests/golden\_session.json}, que fija 1,098 pares DTW, score general de 66.03\%, seis segmentos y los pesos 0.80/0.20.
 
 La validación aplicada se complementa con los archivos derivados de la sesión: resumen de comparación, resumen de alineación, scores y calidad de pose. La ejecución propia permitió comprobar el flujo completo con entradas distintas, mientras que la imagen de landmarks y los clips sirven para revisar visualmente la salida.
+
+La organización del análisis está reflejada en los notebooks numerados del repositorio: inventario y validación de fuentes, extracción de pose, normalización, comparación, sincronización DTW, score y reglas, y agente de retroalimentación. Cada notebook conserva la construcción paso a paso de la etapa correspondiente y la aplicación reúne esas decisiones en un flujo de inferencia reproducible.
 \subsection{Despliegue}
 La aplicación se ejecuta localmente con el entorno y dependencias declaradas en \texttt{pyproject.toml} y \texttt{uv.lock}. La interfaz se implementa con Streamlit y el procesamiento utiliza OpenCV, MediaPipe, NumPy, Pandas y DTW. El despliegue se realizó en Streamlit Community Cloud a partir del repositorio; la aplicación conserva el flujo de análisis y la demo precalculada.
 
