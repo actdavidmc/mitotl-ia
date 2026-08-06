@@ -22,7 +22,7 @@
 \usepackage{csquotes}
 \usepackage[backend=biber,style=apa]{biblatex}
 \usepackage[spanish,es-nodecimaldot,es-noquoting]{babel}
-\usepackage[hidelinks]{hyperref}
+\usepackage[hidelinks,hypertexnames=false]{hyperref}
 \addbibresource{referencias.bib}
 
 \geometry{margin=2.5cm}
@@ -111,7 +111,7 @@ El flujo está organizado alrededor de cuatro momentos: cargar los videos, ejecu
 
 Los mensajes de la aplicación distinguen advertencias de la referencia y de la ejecución. Esto es relevante cuando un video contiene frames que no pudieron decodificarse o momentos sin detección corporal: la advertencia informa una condición técnica sin convertirla automáticamente en un juicio sobre la persona.
 \subsection{Alcance de la versión actual}
-La versión actual incluye análisis de videos cargados, extracción de pose con MediaPipe, comparación de movimiento, alineación temporal, score orientativo, recomendaciones, visualización comparativa, clips críticos y un asistente básico. La captura mediante cámara y el análisis posterior forman parte del flujo previsto; el feedback perfectamente en tiempo real no es un requisito de esta versión.
+La versión actual incluye análisis de videos cargados, extracción de pose con MediaPipe, comparación de movimiento, alineación temporal, score orientativo, recomendaciones, visualización comparativa, clips críticos y un asistente básico. La captura directa mediante cámara y el feedback en tiempo real no están implementados en esta versión; la entrada se realiza mediante archivos de video.
 
 Quedan fuera del alcance inmediato la evaluación artística profesional, el análisis de varias personas, la personalización longitudinal, los planes de práctica adaptativos, la sincronización musical avanzada y los modelos especializados entrenados con etiquetas de calidad de danza. Estas capacidades pueden explorarse en versiones futuras después de reunir datos autorizados y criterios de evaluación adecuados.
 
@@ -121,7 +121,7 @@ La fuente académica principal para el video de referencia es AIST Dance Video D
 
 El video de ejecución representa la práctica propia que se desea comparar. Para validar el flujo se utilizó una ejecución grabada por la persona desarrolladora, distinta del video de referencia. Esta evidencia permite revisar el funcionamiento de la comparación, pero no basta para medir aprendizaje, generalización o calidad de danza en una población amplia.
 
-Como fuente complementaria se considera AIST++, que aporta anotaciones y referencias de movimiento útiles para explorar landmarks, confianza y cobertura corporal. Su función es apoyar la validación técnica; no se utiliza como conjunto etiquetado de personas que bailan bien o mal.
+Como posible fuente complementaria se documenta AIST++, pero sus anotaciones no se descargaron ni forman parte del flujo actual. La referencia queda como una línea futura para explorar landmarks, confianza y cobertura corporal mediante un mapeo entre sus 17 keypoints COCO y los 33 landmarks de MediaPipe. No se utiliza como conjunto etiquetado de personas que bailan bien o mal.
 \subsection{Restricciones de uso}
 El uso de los videos de AIST está sujeto a sus términos de uso y a las condiciones académicas de la fuente \cite{aist,aistterms}. Los archivos de video utilizados localmente no deben redistribuirse dentro del repositorio. Por esa razón, el proyecto conserva metadatos y rutas esperadas, pero excluye los videos privados o descargados de los artefactos versionados.
 
@@ -133,7 +133,7 @@ La representación derivada permite comparar movimiento sin depender directament
 
 \section{Análisis exploratorio y calidad de entrada}
 \subsection{Calidad de los videos}
-Antes de analizar el movimiento, el sistema inspecciona la extensión, la duración, el FPS, la resolución y la cantidad de frames declarada por el contenedor. Después genera una copia temporal de análisis con una altura máxima de 480 píxeles y un FPS objetivo de 30. Esta preparación reduce el costo computacional y conserva el archivo original sin modificarlo.
+Antes de analizar el movimiento, el sistema inspecciona la extensión, la duración, el FPS, la resolución y la cantidad de frames declarada por el contenedor. Después genera una copia temporal de análisis con una altura máxima de 480 píxeles y un FPS objetivo de 15. Para videos de más de cinco minutos utiliza 8 FPS. Esta preparación reduce el costo computacional y conserva el archivo original sin modificarlo; el video comparativo de salida puede generarse posteriormente a 30 FPS.
 
 La validación distingue entre errores que impiden continuar y advertencias que permiten generar resultados parciales. Por ejemplo, si el video reporta más frames de los que finalmente pueden decodificarse, se informa la diferencia y se continúa con los frames disponibles. La advertencia es relevante para interpretar el final del video, pero no implica que todo el análisis deba descartarse.
 \subsection{Detección corporal}
@@ -211,15 +211,15 @@ Los errores se controlan por etapa. Una entrada inválida detiene el análisis c
 
 \section{Resultados}
 \subsection{Resultados cuantitativos}
-La sesión guardada para la demostración compara la referencia \texttt{gBR\_sBM\_c01\_d04\_mBR0\_ch01.mp4} con la ejecución propia \texttt{execution\_sBM\_personal\_01.mov}. La referencia contiene 719 frames y la ejecución 947 frames. El resultado es preliminar y se interpreta como una guía de práctica, no como una medición profesional. El análisis completo conserva seis segmentos; la vista resumida de la demo muestra los segmentos principales para facilitar la revisión.
+La sesión guardada para la demostración compara una referencia AIST con una ejecución propia. La referencia contiene 719 frames y la ejecución 947 frames. El resultado es preliminar y se interpreta como una guía de práctica, no como una medición profesional. El análisis completo conserva seis segmentos; la vista resumida de la demo muestra los segmentos principales para facilitar la revisión.
 
 \begin{table}[htbp]
   \centering
   \caption{Resumen cuantitativo de la sesión guardada.}
   \label{tab:resultados-sesion}
-  \begin{tabularx}{0.82\textwidth}{>{\raggedright\arraybackslash}X>{\centering\arraybackslash}p{2.2cm}>{\centering\arraybackslash}p{2.2cm}}
+  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X>{\centering\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}X}
     \toprule
-    Indicador & Resultado & Interpretación \\\\
+    Indicador & Resultado & Lectura \\\\
     \midrule
     Score general & 66.03 & Orientativo \\
     Brazos & 47.49 & Área prioritaria \\
@@ -239,8 +239,7 @@ El resultado identifica los brazos como la principal oportunidad de mejora, con 
 
 La recomendación generada para los brazos es revisar su trayectoria; para las piernas, revisar posición y trayectoria; y para el segmento temporal 2, practicar el cambio de ritmo. Estas frases no describen una corrección artística absoluta: indican qué evidencia conviene revisar primero dentro de esta comparación.
 \subsection{Visualización comparativa}
-El repositorio conserva una visualización comparativa completa en 
-\texttt{data/demo/visuals/mitotl\_aligned\_full.mp4} y tres clips de momentos críticos: \texttt{mitotl\_momento\_1.mp4}, \texttt{mitotl\_momento\_2.mp4} y \texttt{mitotl\_momento\_3.mp4}. Estos archivos se cargan en la pestaña de visualizaciones cuando se revisa la sesión guardada. La aplicación también permite descargar los clips para inspeccionar la diferencia fuera de la interfaz.
+El repositorio conserva una visualización comparativa completa y tres clips de momentos críticos en los recursos versionados de la demo. Estos archivos se cargan en la pestaña de visualizaciones cuando se revisa la sesión guardada. La aplicación también permite descargar los clips para inspeccionar la diferencia fuera de la interfaz.
 
 Como evidencia del control de calidad de pose, la Figura~\ref{fig:landmarks-validation} reúne la validación de landmarks en los videos de referencia disponibles.
 \begin{figure}[htbp]
@@ -252,9 +251,9 @@ Como evidencia del control de calidad de pose, la Figura~\ref{fig:landmarks-vali
 
 \section{Interfaz de uso}
 \subsection{Flujo de análisis}
-La interfaz organiza la experiencia en cuatro pestañas: Videos, Resultados, Visualizaciones y Asistente. En Videos se carga la referencia y la ejecución, o se utiliza el flujo de cámara disponible en la aplicación. El botón de análisis inicia la preparación, extracción, alineación y cálculo de resultados; el estado del proceso comunica la etapa actual.
+La interfaz organiza la experiencia en cuatro pestañas: Videos, Resultados, Visualizaciones y Asistente. En Videos se cargan la referencia y la ejecución mediante archivos de video. El botón de análisis inicia la preparación, extracción, alineación y cálculo de resultados; el estado del proceso comunica la etapa actual.
 
-En Resultados se presentan el score general, los scores por brazos, piernas, torso y cabeza, la similitud temporal, los hallazgos y las recomendaciones. Visualizaciones muestra la comparación sincronizada, los clips críticos y, cuando aplica, las advertencias separadas para referencia y ejecución. Asistente permite preguntar sobre la sesión y recibe el contexto de scores, segmentos débiles y recomendaciones.
+En Resultados se presentan el score general, los scores por brazos, piernas, torso y cabeza, la similitud temporal, los hallazgos y las recomendaciones. Visualizaciones muestra la comparación sincronizada, los clips críticos y, cuando aplica, las advertencias separadas para referencia y ejecución. Asistente permite preguntar sobre la sesión y recibe el contexto de scores, segmentos débiles y recomendaciones. La pestaña Videos recibe archivos de video; no ofrece captura directa desde la cámara.
 
 La Figura~\ref{fig:interfaz-resultados} muestra la pantalla de resultados de la sesión precalculada. La información se presenta en tarjetas y bloques de lectura rápida para que la persona identifique primero el score general y después las partes del cuerpo que conviene practicar.
 \begin{figure}[htbp]
@@ -272,7 +271,7 @@ La Figura~\ref{fig:interfaz-visualizaciones} documenta la pestaña de visualizac
   \label{fig:interfaz-visualizaciones}
 \end{figure}
 \subsection{Demo precalculada}
-La aplicación puede cargar la sesión guardada desde \texttt{data/demo/session\_score\_summary.json}. Esta opción permite demostrar la navegación, los resultados y los videos comparativos sin volver a ejecutar el procesamiento completo. La sesión precalculada está identificada como demo y no sustituye el flujo de análisis con videos nuevos.
+La aplicación puede cargar la sesión guardada desde el JSON versionado de la demo. Esta opción permite demostrar la navegación, los resultados y los videos comparativos sin volver a ejecutar el procesamiento completo. La sesión precalculada está identificada como demo y no sustituye el flujo de análisis con videos nuevos.
 
 La demo utiliza recursos ligeros ya incluidos en el repositorio: el resumen JSON y los cuatro videos comparativos. Esto mantiene el tiempo de espera de la demostración bajo control; el análisis de una sesión nueva puede tardar más dependiendo de la duración, resolución, decodificación y disponibilidad de recursos.
 
@@ -288,13 +287,13 @@ Finalmente, la Figura~\ref{fig:interfaz-asistente} muestra el asistente dentro d
 \subsection{Pruebas del pipeline}
 El repositorio incluye pruebas unitarias para validación de archivos, preparación de videos, extracción de variables, alineación, comparación, score, feedback, generación de reportes, visualizaciones y contrato del agente. También existe una sesión dorada en \texttt{tests/golden\_session.json}, que fija 1,098 pares DTW, score general de 66.03\%, seis segmentos y los pesos 0.80/0.20.
 
-La validación aplicada se complementa con los archivos derivados de la sesión: resumen de comparación, resumen de alineación, scores y calidad de pose. La ejecución propia permitió comprobar el flujo completo con entradas distintas, mientras que la imagen de landmarks y los clips sirven para revisar visualmente la salida.
+La validación aplicada se complementa con archivos derivados de la sesión disponibles en el entorno de trabajo: resumen de comparación, resumen de alineación, scores y calidad de pose. Estos artefactos no están versionados en Git porque dependen de videos locales excluidos del repositorio; sirven como evidencia de esta ejecución, pero no garantizan por sí solos la reproducción exacta desde un clon limpio. La ejecución propia permitió comprobar el flujo completo con entradas distintas, mientras que la imagen de landmarks y los clips sirven para revisar visualmente la salida.
 
 La organización del análisis está reflejada en los notebooks numerados del repositorio: inventario y validación de fuentes, extracción de pose, normalización, comparación, sincronización DTW, score y reglas, y agente de retroalimentación. Cada notebook conserva la construcción paso a paso de la etapa correspondiente y la aplicación reúne esas decisiones en un flujo de inferencia reproducible.
 \subsection{Despliegue}
-La aplicación se ejecuta localmente con el entorno y dependencias declaradas en \texttt{pyproject.toml} y \texttt{uv.lock}. La interfaz se implementa con Streamlit y el procesamiento utiliza OpenCV, MediaPipe, NumPy, Pandas y DTW. El despliegue se realizó en Streamlit Community Cloud a partir del repositorio; la aplicación conserva el flujo de análisis y la demo precalculada.
+La aplicación se ejecuta localmente con el entorno y dependencias declaradas en los archivos del proyecto. La interfaz se implementa con Streamlit y el procesamiento utiliza OpenCV, MediaPipe, NumPy, Pandas y DTW. El repositorio contiene la configuración necesaria para intentar un despliegue en Streamlit Community Cloud y conserva el flujo de análisis y la demo precalculada; el estado de una instancia remota depende de su entorno de ejecución.
 
-Durante la puesta en producción se identificó que MediaPipe podía intentar acceder a un modelo dentro de un directorio sin permisos de escritura. La aplicación resuelve esta condición preparando el recurso en una ruta temporal escribible antes de inicializar la extracción de pose. Esta decisión es específica del entorno Cloud y no modifica los videos de entrada.
+Durante las pruebas de despliegue se identificó que MediaPipe podía intentar acceder a un modelo dentro de un directorio sin permisos de escritura. En el código versionado no existe una rutina propia que copie o redirija ese modelo a una ruta temporal; por ello, esta condición debe considerarse una dependencia del entorno Cloud y una limitación de despliegue pendiente de resolver. Localmente, la extracción utiliza directamente MediaPipe Pose y no modifica los videos de entrada.
 \subsection{Manejo de errores}
 Los frames sin detección se conservan como parte de la secuencia temporal y generan advertencias cuando afectan la interpretación. Los videos truncados o con menos frames decodificables continúan con los frames disponibles, informando el tramo omitido. Los huecos de pose mayores a dos segundos se consideran insuficientes para interpolar y detienen la alineación de esa secuencia.
 
