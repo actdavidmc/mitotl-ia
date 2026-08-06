@@ -211,34 +211,107 @@ Los errores se controlan por etapa. Una entrada inválida detiene el análisis c
 
 \section{Resultados}
 \subsection{Resultados cuantitativos}
-\pendiente{Score general, scores corporales, similitud temporal y segmentos débiles.}
+La sesión guardada para la demostración compara la referencia \texttt{gBR\_sBM\_c01\_d04\_mBR0\_ch01.mp4} con la ejecución propia \texttt{execution\_sBM\_personal\_01.mov}. La referencia contiene 719 frames y la ejecución 947 frames. El resultado es preliminar y se interpreta como una guía de práctica, no como una medición profesional. El análisis completo conserva seis segmentos; la vista resumida de la demo muestra los segmentos principales para facilitar la revisión.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Resumen cuantitativo de la sesión guardada.}
+  \label{tab:resultados-sesion}
+  \begin{tabularx}{0.82\textwidth}{>{\raggedright\arraybackslash}X>{\centering\arraybackslash}p{2.2cm}>{\centering\arraybackslash}p{2.2cm}}
+    \toprule
+    Indicador & Resultado & Interpretación \ \\
+    \midrule
+    Score general & 66.03 & Orientativo \\
+    Brazos & 47.49 & Área prioritaria \\
+    Piernas & 65.13 & Revisar trayectoria \\
+    Torso & 74.21 & Mayor coincidencia relativa \\
+    Cabeza & 78.91 & Mayor coincidencia relativa \\
+    Similitud temporal & 64.39\% & Diferencias de ritmo \\
+    Pares alineados por DTW & 1,098 & Correspondencias temporales \\
+    Segmento más débil & 2 & 1.99--3.97 s de referencia \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+El score corporal promedio fue 66.44\% y la similitud temporal fue 64.39\%. La ponderación utilizada fue 80\% para similitud corporal y 20\% para similitud temporal, de acuerdo con la definición de la versión actual.
 \subsection{Hallazgos y recomendaciones}
-\pendiente{Partes del cuerpo, momentos críticos y recomendaciones generadas.}
+El resultado identifica los brazos como la principal oportunidad de mejora, con 47.49\% de similitud agrupada. En los registros de mayor diferencia aparecen landmarks de la mano derecha alrededor de los 2.35 segundos de referencia y 2.85 segundos de ejecución. También se observan diferencias en la trayectoria de las piernas, particularmente cerca del primer segmento.
+
+La recomendación generada para los brazos es revisar su trayectoria; para las piernas, revisar posición y trayectoria; y para el segmento temporal 2, practicar el cambio de ritmo. Estas frases no describen una corrección artística absoluta: indican qué evidencia conviene revisar primero dentro de esta comparación.
 \subsection{Visualización comparativa}
-\pendiente{Video comparativo y clips críticos de la demo.}
+El repositorio conserva una visualización comparativa completa en 
+\texttt{data/demo/visuals/mitotl\_aligned\_full.mp4} y tres clips de momentos críticos: \texttt{mitotl\_momento\_1.mp4}, \texttt{mitotl\_momento\_2.mp4} y \texttt{mitotl\_momento\_3.mp4}. Estos archivos se cargan en la pestaña de visualizaciones cuando se revisa la sesión guardada. La aplicación también permite descargar los clips para inspeccionar la diferencia fuera de la interfaz.
+
+Como evidencia del control de calidad de pose, la Figura~\ref{fig:landmarks-validation} reúne la validación de landmarks en los videos de referencia disponibles.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figuras/landmarks_validation_all_videos.png}
+  \caption{Validación visual de landmarks corporales en videos de referencia.}
+  \label{fig:landmarks-validation}
+\end{figure}
 
 \section{Interfaz de uso}
 \subsection{Flujo de análisis}
-\pendiente{Carga, ejecución, consulta de resultados y asistencia.}
+La interfaz organiza la experiencia en cuatro pestañas: Videos, Resultados, Visualizaciones y Asistente. En Videos se carga la referencia y la ejecución, o se utiliza el flujo de cámara disponible en la aplicación. El botón de análisis inicia la preparación, extracción, alineación y cálculo de resultados; el estado del proceso comunica la etapa actual.
+
+En Resultados se presentan el score general, los scores por brazos, piernas, torso y cabeza, la similitud temporal, los hallazgos y las recomendaciones. Visualizaciones muestra la comparación sincronizada, los clips críticos y, cuando aplica, las advertencias separadas para referencia y ejecución. Asistente permite preguntar sobre la sesión y recibe el contexto de scores, segmentos débiles y recomendaciones.
+
+La Figura~\ref{fig:interfaz-resultados} muestra la pantalla de resultados de la sesión precalculada. La información se presenta en tarjetas y bloques de lectura rápida para que la persona identifique primero el score general y después las partes del cuerpo que conviene practicar.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figuras/interfaz_resultados_demo.png}
+  \caption{Pestaña de resultados con la sesión demo activada.}
+  \label{fig:interfaz-resultados}
+\end{figure}
+
+La Figura~\ref{fig:interfaz-visualizaciones} documenta la pestaña de visualizaciones. El video comparativo y los clips se sirven desde archivos precalculados; por ello, esta revisión no vuelve a ejecutar la extracción de pose ni la alineación temporal.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figuras/interfaz_visualizaciones_demo.png}
+  \caption{Pestaña de visualizaciones con el video comparativo sincronizado.}
+  \label{fig:interfaz-visualizaciones}
+\end{figure}
 \subsection{Demo precalculada}
-\pendiente{Sesión guardada para revisar la interfaz sin esperar el análisis.}
+La aplicación puede cargar la sesión guardada desde \texttt{data/demo/session\_score\_summary.json}. Esta opción permite demostrar la navegación, los resultados y los videos comparativos sin volver a ejecutar el procesamiento completo. La sesión precalculada está identificada como demo y no sustituye el flujo de análisis con videos nuevos.
+
+La demo utiliza recursos ligeros ya incluidos en el repositorio: el resumen JSON y los cuatro videos comparativos. Esto mantiene el tiempo de espera de la demostración bajo control; el análisis de una sesión nueva puede tardar más dependiendo de la duración, resolución, decodificación y disponibilidad de recursos.
+
+Finalmente, la Figura~\ref{fig:interfaz-asistente} muestra el asistente dentro de la misma interfaz. Su función es explicar los resultados y orientar la práctica; no reemplaza el análisis determinista ni una evaluación profesional.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figuras/interfaz_asistente_demo.png}
+  \caption{Pestaña del asistente educativo durante la revisión de la demo.}
+  \label{fig:interfaz-asistente}
+\end{figure}
 
 \section{Evaluación y reproducibilidad}
 \subsection{Pruebas del pipeline}
-\pendiente{Pruebas unitarias, validación de una ejecución propia y validación visual.}
+El repositorio incluye pruebas unitarias para validación de archivos, preparación de videos, extracción de variables, alineación, comparación, score, feedback, generación de reportes, visualizaciones y contrato del agente. También existe una sesión dorada en \texttt{tests/golden\_session.json}, que fija 1,098 pares DTW, score general de 66.03\%, seis segmentos y los pesos 0.80/0.20.
+
+La validación aplicada se complementa con los archivos derivados de la sesión: resumen de comparación, resumen de alineación, scores y calidad de pose. La ejecución propia permitió comprobar el flujo completo con entradas distintas, mientras que la imagen de landmarks y los clips sirven para revisar visualmente la salida.
 \subsection{Despliegue}
-\pendiente{Ejecución local, Streamlit Cloud y dependencias.}
+La aplicación se ejecuta localmente con el entorno y dependencias declaradas en \texttt{pyproject.toml} y \texttt{uv.lock}. La interfaz se implementa con Streamlit y el procesamiento utiliza OpenCV, MediaPipe, NumPy, Pandas y DTW. El despliegue se realizó en Streamlit Community Cloud a partir del repositorio; la aplicación conserva el flujo de análisis y la demo precalculada.
+
+Durante la puesta en producción se identificó que MediaPipe podía intentar acceder a un modelo dentro de un directorio sin permisos de escritura. La aplicación resuelve esta condición preparando el recurso en una ruta temporal escribible antes de inicializar la extracción de pose. Esta decisión es específica del entorno Cloud y no modifica los videos de entrada.
 \subsection{Manejo de errores}
-\pendiente{Frames sin detección, videos truncados, MediaPipe y ausencia de API key.}
+Los frames sin detección se conservan como parte de la secuencia temporal y generan advertencias cuando afectan la interpretación. Los videos truncados o con menos frames decodificables continúan con los frames disponibles, informando el tramo omitido. Los huecos de pose mayores a dos segundos se consideran insuficientes para interpolar y detienen la alineación de esa secuencia.
+
+La extracción de pose encapsula los errores de MediaPipe y los presenta con la etapa correspondiente. La ausencia de API key no debe impedir consultar los resultados deterministas: la interfaz puede mostrar scores, hallazgos y recomendaciones aunque el asistente conversacional no esté disponible.
 
 \section{Limitaciones, ética y uso responsable}
-\pendiente{Alcance de una persona, score orientativo, calidad de captura, licencias y privacidad.}
+Mitotl IA tiene limitaciones que deben acompañar cualquier interpretación de sus resultados. Primero, analiza una sola persona y depende de que el cuerpo completo permanezca visible. Cambios de cámara, baja iluminación, ropa que dificulte la detección, partes del cuerpo fuera de cuadro o movimientos muy rápidos pueden reducir la calidad de los landmarks.
+
+Segundo, el score compara variables observables entre dos videos; no mide talento, musicalidad, expresividad, intención escénica ni calidad artística profesional. Tampoco debe utilizarse para evaluar o clasificar personas. La sesión documentada es una evidencia de funcionamiento con una ejecución propia, no un estudio con muestra de usuarios ni una evaluación estadística de generalización.
+
+Tercero, AIST no se trata como un conjunto etiquetado de desempeño correcto o incorrecto. Los videos se utilizan con respeto a sus términos de uso y no deben redistribuirse. Los videos de usuarios requieren autorización compatible, deben manejarse como entradas privadas y no deben incorporarse al repositorio sin una decisión explícita de licencia y privacidad.
 
 \section{Conclusiones y trabajo futuro}
 \subsection{Conclusiones}
-\pendiente{Hallazgos principales y respuesta al problema.}
+La versión documentada demuestra un flujo reproducible para comparar una referencia de danza con una ejecución propia. La combinación de landmarks, variables normalizadas, DTW, scores y reglas permite convertir una diferencia visual general en puntos de revisión más concretos. En la sesión guardada, los brazos y el segundo segmento temporal concentran las principales oportunidades de práctica.
+
+El valor de la herramienta está en localizar y explicar momentos de la comparación, no en reemplazar a un instructor ni producir una calificación definitiva. La interfaz, los clips y la sesión precalculada hacen posible presentar el resultado de manera comprensible y verificable.
 \subsection{Trabajo futuro}
-\pendiente{Tiempo real, varias personas, historial, personalización y métricas de ritmo.}
+Como trabajo futuro se consideran el análisis de varias personas, un historial de sesiones, personalización de recomendaciones, métricas de ritmo y suavidad, sincronización con música, mayor tolerancia a cambios de cámara y modelos temporales especializados. Estas extensiones requieren datos autorizados, criterios de evaluación más amplios y pruebas con usuarios reales.
 
 \section*{Referencias}
 \addcontentsline{toc}{section}{Referencias}
