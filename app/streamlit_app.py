@@ -983,6 +983,7 @@ def main() -> None:
             bottom: -0.45rem;
             height: 0.45rem;
             background: Canvas;
+            z-index: 1;
         }
         [role="tablist"] > div {
             flex: 1 1 0 !important;
