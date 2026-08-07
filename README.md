@@ -1,5 +1,11 @@
 # Mitotl IA
 
+![Logo de Mitotl IA](assets/brand/export/horizontal-logo-color.png)
+
+[Abrir Mitotl IA en Streamlit](https://mitotl-ia.streamlit.app)
+
+La [estrategia detallada y el diseño de solución](docs/00-estrategia.md) se encuentran en la carpeta `docs`. El desarrollo analítico está documentado en los [notebooks del proyecto](notebooks/), organizados por etapas del pipeline.
+
 Plataforma experimental de inteligencia artificial para comparar un video de referencia con un video de ejecución de danza y generar retroalimentación educativa sobre el movimiento corporal.
 
 Mitotl IA está pensada para apoyar la práctica autónoma: identifica diferencias de posición y sincronización, muestra los momentos de mayor desviación y sugiere qué partes del cuerpo conviene practicar. El resultado es una guía de similitud técnica; no es una calificación artística, médica ni profesional.
