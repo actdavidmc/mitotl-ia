@@ -115,6 +115,41 @@ La versión actual incluye análisis de videos cargados, extracción de pose con
 
 Quedan fuera del alcance inmediato la evaluación artística profesional, el análisis de varias personas, la personalización longitudinal, los planes de práctica adaptativos, la sincronización musical avanzada y los modelos especializados entrenados con etiquetas de calidad de danza. Estas capacidades pueden explorarse en versiones futuras después de reunir datos autorizados y criterios de evaluación adecuados.
 
+\subsection{Impacto esperado}
+Mitotl IA busca generar impacto en cuatro niveles. En primer lugar, facilita el acceso a una forma de retroalimentación que normalmente requiere un espejo, un espacio especializado o la observación continua de una persona instructora. La persona puede practicar con los recursos que ya tiene y recibir una guía localizada sobre qué revisar, sin que el producto convierta el aprendizaje en una competencia o en una calificación definitiva.
+
+En segundo lugar, el sistema puede reducir la distancia entre observar una diferencia y saber qué hacer con ella. Un score aislado tiene poco valor pedagógico; por eso Mitotl IA relaciona la similitud con un momento, una parte del cuerpo, una visualización y una recomendación. El impacto esperado no es que la persona acepte ciegamente un porcentaje, sino que pueda repetir una sección con una hipótesis concreta de mejora.
+
+En tercer lugar, la herramienta puede apoyar a docentes, academias y creadores de contenido como un recurso complementario para revisar prácticas, organizar ejemplos y orientar conversaciones. No sustituye la experiencia de una persona docente: automatiza una revisión inicial y deja la interpretación artística, musical y pedagógica en manos humanas.
+
+Finalmente, el proyecto establece una base técnica para desarrollar servicios de aprendizaje corporal más personalizados. La generación de variables, segmentos, hallazgos y recomendaciones permite construir historiales de práctica y planes adaptativos en versiones posteriores, siempre que existan autorización, protección de datos y criterios de evaluación suficientes.
+
+\subsection{¿Por qué usar Mitotl IA?}
+La utilidad de Mitotl IA se encuentra en combinar comparación visual, sincronización temporal y explicación accionable en un mismo flujo. Una persona puede mirar dos videos, pero le resulta difícil identificar con precisión en qué instante aparece una diferencia, qué articulación la explica o si el problema proviene de la postura o del ritmo. El sistema organiza esa revisión y reduce el esfuerzo necesario para comenzar una práctica dirigida.
+
+La propuesta es especialmente pertinente cuando no hay una persona instructora disponible en cada repetición, cuando se practica a distancia o cuando se necesita revisar muchas veces una sección corta. La plataforma permite conservar la autonomía de la persona usuaria, ofrece resultados interpretables y mantiene el análisis determinista disponible incluso cuando el asistente conversacional no está configurado.
+
+El producto también se diferencia por el tipo de promesa que realiza. Mitotl IA no afirma medir talento ni declarar quién baila bien o mal. Su promesa es más concreta y verificable: señalar diferencias observables entre dos videos y transformarlas en una guía de práctica. Esta delimitación reduce el riesgo de presentar el score como una verdad absoluta y facilita que los resultados se revisen junto con la evidencia visual.
+
+\subsection{Propuesta de valor empresarial}
+Como empresa, Mitotl IA puede atender inicialmente tres grupos relacionados: personas que aprenden o practican danza de forma autónoma, docentes o academias que buscan una herramienta de apoyo para sus estudiantes, y creadores de contenido que publican ejercicios o coreografías. El MVP se enfoca en la primera relación de uso, pero su arquitectura permite explorar los otros segmentos después de validar la experiencia individual.
+
+Para la persona usuaria, el valor está en obtener una respuesta concreta a tres preguntas: qué parte del movimiento revisar, en qué momento hacerlo y qué acción intentar. Para una academia o docente, el valor potencial está en contar con una primera capa de observación que ayude a priorizar la atención durante una clase, sin reemplazar la evaluación profesional. Para un creador, el valor potencial está en acompañar un video de referencia con una experiencia de práctica y autoevaluación.
+
+La sostenibilidad del servicio dependería de controlar tres recursos: el costo de procesamiento de video, el almacenamiento temporal de archivos y, cuando se active, el consumo del asistente conversacional. Por ello, el diseño actual procesa videos cargados, utiliza resultados derivados compactos para el agente y evita requerir una API para el análisis principal. Estas decisiones permiten que la propuesta pueda probarse antes de incorporar funciones de mayor costo, como historial longitudinal, análisis multimodal o retroalimentación en tiempo real.
+
+\subsection{Indicadores de impacto y éxito}
+La evaluación de la empresa no debería limitarse a aumentar el score. Se proponen indicadores técnicos, de uso y de aprendizaje:
+
+\begin{itemize}
+  \item \textbf{Técnicos:} porcentaje de sesiones completadas, tasa de detección corporal, tiempo promedio de análisis, proporción de videos rechazados y coherencia entre los hallazgos y la evidencia visual.
+  \item \textbf{De uso:} porcentaje de personas que completan su primera sesión, tiempo hasta encontrar una recomendación útil, descarga o consulta de visualizaciones, repetición de una sección y retorno a una segunda práctica.
+  \item \textbf{De aprendizaje:} percepción de claridad de la retroalimentación, capacidad de la persona para identificar qué practicar y cambio entre una ejecución inicial y una posterior bajo condiciones comparables.
+  \item \textbf{De confianza y responsabilidad:} comprensión de que el score es orientativo, ausencia de uso de videos sin autorización, claridad de los mensajes de error y percepción de que la herramienta complementa, en lugar de sustituir, a docentes o profesionales.
+\end{itemize}
+
+Estos indicadores deberán validarse con personas usuarias y no se presentan como resultados ya demostrados por la prueba de humo. La sesión actual confirma el funcionamiento técnico del flujo y la generación de evidencia; la validación de impacto, adopción y mejora de desempeño queda como siguiente etapa de investigación.
+
 \section{Descripción de los datos}
 \subsection{Fuentes de referencia y ejecución}
 La fuente académica principal para el video de referencia es AIST Dance Video Database, una colección de videos de danza utilizada para construir y validar el flujo inicial. Se selecciona una secuencia con una persona, vista frontal y cuerpo completo visible. La referencia se emplea para probar la extracción de pose, la comparación corporal y la sincronización temporal, no para definir una verdad absoluta sobre cómo debe bailar una persona.
