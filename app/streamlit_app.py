@@ -118,7 +118,8 @@ def _render_video_box(video_path: Path, *, height: int = 420) -> None:
         <style>
         video[data-testid="stVideo"] {{
             width: 100%;
-            height: {height}px;
+            height: auto;
+            aspect-ratio: 16 / 9;
             object-fit: contain;
             background: #000000;
             border-radius: 0.75rem;
@@ -1032,9 +1033,7 @@ def main() -> None:
         with execution_column:
             st.markdown("### Video de ejecución")
             included_execution_path = PROJECT_ROOT / "data" / "raw" / "execution" / "execution_sBM_personal_01.mov"
-            execution_source_options = ["Cargar mi video"]
-            if included_execution_path.exists():
-                execution_source_options.append("Usar ejecución incluida")
+            execution_source_options = ["Usar ejecución incluida", "Cargar mi video"] if included_execution_path.exists() else ["Cargar mi video"]
             execution_source = st.radio(
                 "Origen de la ejecución",
                 execution_source_options,
