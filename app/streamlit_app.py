@@ -1043,6 +1043,10 @@ def main() -> None:
             if execution_source == "Usar ejecución incluida":
                 execution_path = included_execution_path
                 st.caption(f"Ejecución incluida: {execution_path.name}")
+                st.markdown(
+                    "<div style='height: 84px;'></div>",
+                    unsafe_allow_html=True,
+                )
             else:
                 uploaded_execution = st.file_uploader(
                     "Selecciona tu ejecución",
