@@ -1021,19 +1021,34 @@ def main() -> None:
                 "<div style='height: 96px;'></div>",
                 unsafe_allow_html=True,
             )
-            uploaded_execution = st.file_uploader(
-                "Selecciona tu ejecución",
-                type=["mp4", "mov", "webm"],
-                key="execution_upload",
+            included_execution_path = PROJECT_ROOT / "data" / "raw" / "execution" / "execution_sBM_personal_01.mov"
+            execution_source_options = ["Cargar mi video"]
+            if included_execution_path.exists():
+                execution_source_options.append("Usar ejecución incluida")
+            execution_source = st.radio(
+                "Origen de la ejecución",
+                execution_source_options,
+                horizontal=True,
             )
             execution_path = None
-            if uploaded_execution is not None:
-                if st.session_state.get("execution_upload_name") != uploaded_execution.name:
-                    st.session_state["execution_upload_path"] = _save_uploaded_file(uploaded_execution, "mitotl_execution_")
-                    st.session_state["execution_upload_name"] = uploaded_execution.name
-                execution_path = Path(st.session_state["execution_upload_path"])
+            if execution_source == "Usar ejecución incluida":
+                execution_path = included_execution_path
+                st.caption(f"Ejecución incluida: {execution_path.name}")
+            else:
+                uploaded_execution = st.file_uploader(
+                    "Selecciona tu ejecución",
+                    type=["mp4", "mov", "webm"],
+                    key="execution_upload",
+                )
+                if uploaded_execution is not None:
+                    if st.session_state.get("execution_upload_name") != uploaded_execution.name:
+                        st.session_state["execution_upload_path"] = _save_uploaded_file(uploaded_execution, "mitotl_execution_")
+                        st.session_state["execution_upload_name"] = uploaded_execution.name
+                    execution_path = Path(st.session_state["execution_upload_path"])
+                    _render_video_box(execution_path)
+                    st.caption(f"Ejecución cargada: {execution_path.name}")
+            if execution_path is not None and execution_source == "Usar ejecución incluida":
                 _render_video_box(execution_path)
-                st.caption(f"Ejecución cargada: {execution_path.name}")
 
         if st.button("Analizar sesión", type="primary", disabled=reference_path is None or execution_path is None):
             analysis_started_at = time.perf_counter()

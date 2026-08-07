@@ -164,6 +164,7 @@ venv.bak/
 data/raw/**/*.mp4
 data/raw/**/*.mov
 data/raw/**/*.webm
+!data/raw/execution/execution_sBM_personal_01.mov
 models/*.task
 data/derived/pose/*.json
 data/derived/normalized/*.json

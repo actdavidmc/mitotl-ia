@@ -89,7 +89,7 @@ streamlit run app/streamlit_app.py
 Después, abre la URL local mostrada por Streamlit y sigue este flujo:
 
 1. Selecciona una referencia del catálogo AIST o carga un video propio.
-2. Carga el video de ejecución.
+2. Selecciona **Usar ejecución incluida** o carga tu propio video de ejecución.
 3. Presiona **Analizar sesión**.
 4. Consulta las pestañas **Resultados**, **Visualizaciones** y **Asistente**.
 5. Descarga el reporte PDF o el video comparativo cuando estén disponibles.
@@ -176,7 +176,7 @@ mitotl-ia/
 └── packages.txt           # Paquetes de sistema para despliegue Linux
 ```
 
-Los videos y resultados derivados locales están excluidos del control de versiones mediante `.gitignore`. La aplicación puede descargar temporalmente una referencia del catálogo cuando el archivo no está disponible localmente.
+Los videos y resultados derivados locales están excluidos del control de versiones mediante `.gitignore`. La aplicación incluye una ejecución de ejemplo para facilitar la demostración y puede descargar temporalmente una referencia del catálogo cuando el archivo no está disponible localmente.
 
 ## Datos y atribución
 
