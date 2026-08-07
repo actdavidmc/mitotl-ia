@@ -111,8 +111,22 @@ def _materialize_aist_reference(selected_row: pd.Series) -> Path | None:
 
 
 def _render_video_box(video_path: Path, *, height: int = 420) -> None:
-    """Muestra el video sin duplicarlo como Base64 en memoria."""
+    """Muestra el video en una caja uniforme con bandas negras si hace falta."""
 
+    st.markdown(
+        f"""
+        <style>
+        div[data-testid="stVideo"] video {{
+            width: 100%;
+            height: {height}px;
+            object-fit: contain;
+            background: #000000;
+            border-radius: 0.75rem;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     st.video(str(video_path))
 
 
