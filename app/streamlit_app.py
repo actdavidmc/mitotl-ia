@@ -116,7 +116,7 @@ def _render_video_box(video_path: Path, *, height: int = 420) -> None:
     st.markdown(
         f"""
         <style>
-        div[data-testid="stVideo"] video {{
+        video[data-testid="stVideo"] {{
             width: 100%;
             height: {height}px;
             object-fit: contain;
