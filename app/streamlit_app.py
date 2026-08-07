@@ -1017,10 +1017,6 @@ def main() -> None:
 
         with execution_column:
             st.markdown("### Video de ejecución")
-            st.markdown(
-                "<div style='height: 96px;'></div>",
-                unsafe_allow_html=True,
-            )
             included_execution_path = PROJECT_ROOT / "data" / "raw" / "execution" / "execution_sBM_personal_01.mov"
             execution_source_options = ["Cargar mi video"]
             if included_execution_path.exists():
